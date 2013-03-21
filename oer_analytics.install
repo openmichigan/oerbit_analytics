@@ -1,0 +1,183 @@
+<?php 
+
+
+/**
+* @file
+* Installation file for the Open.Michigan analytics (oer_analytics) module.
+* Creation guidance from files at https://github.com/jasonhoekstra/learning_registry/blob/6.x-1.x
+*
+* This installation file sets up the database tables for the analytics module.
+*/
+
+/**
+* Implements hook_install().
+*/
+function oer_analytics_install() {
+	drupal_set_message((st('Installing oer_analytics')));
+	drupal_install_schema('oer_analytics');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function oer_analytics_uninstall() {
+  drupal_uninstall_schema('oer_analytics');
+}
+
+/**
+* Implements hook_enable().
+*/
+function oer_analytics_enable() {
+	// What, if anything, needs to happen here?
+}
+
+/**
+* Implements hook_schema().
+* 
+* @returns $schema
+*   An array providing the DB schema definition required by the schema API.
+*/
+function oer_analytics_schema() {
+	drupal_set_message((st('Adding tables for oer_analytics')));
+	$schema['oer_analytics_courses'] = array(
+		'fields' => array(
+			'nid' => array(
+				'description' => 'The primary identifier for a (course) node.',
+				'type' => 'int',
+				'unsigned' => TRUE,
+				'not null' => TRUE,
+				),
+			'totalviews' => array(
+				'description' => 'Number of total page views the course pg has had overall',
+				'type' => 'int',
+				'unsigned' => TRUE,
+ 				'not null' => TRUE,
+ 				'default' => 0,
+				),
+			'totalvisits' => array(
+				'description' => 'Number of total page visits the course pg has had overall',
+				'type' => 'int',
+				'unsigned' => TRUE,
+				'not null' => TRUE,
+				'default' =>0,
+				),
+			'total_materialviews' => array(
+				'description' => 'Number of overall views of the MATERIALS page belonging to a course or resource',
+				'type' => 'int',
+				'unsigned' => TRUE,
+				'not null' => TRUE,
+				'default' => 0,
+				),
+			'total_zipdownloads' => array(
+				'description' => 'Total zip downloads of the materials belonging to the course or resource',
+				'type' => 'int',
+				'unsigned' => TRUE,
+				'not null' => TRUE,
+				'default' => 0,
+				),
+			),
+		'primary key' => array('nid'),
+	);
+	$schema['oer_analytics_youtube'] = array(
+		'fields' => array(
+			'course_nid' => array(
+				'description' => 'The primary identifier for the course node to which this YT material belongs.',
+				'type' => 'int',
+				'unsigned' => TRUE,
+				'not null' => TRUE,
+			),
+			
+			'totalviews' => array(
+				'description' => 'Number of total youtube views the course youtube material has gotten',
+				'type' => 'int',
+				'not null' => TRUE,
+				'unsigned' => TRUE,
+				'default' => 0,
+			),
+			
+			'totalcomments' => array(
+				'description' => 'Number of total youtube comments the course youtube material has gotten',
+				'type' => 'int',
+				'not null' => TRUE,
+				'unsigned' => TRUE,
+				'default' => 0,
+			),
+			
+			// 'totallikes' => array(
+			// 	'description' => 'Number of total Likes the course youtube material has gotten',
+			// 	'type' => 'int',
+			// 	// not yet implemented
+			// ),
+			
+			// 'totalfavs' => array(
+			// 	'description' => 'Number of total Favorites the course youtube material has gotten',
+			// 	'type' => 'int',
+			// 	// not yet implemented
+			// ),
+			
+			// 'totalshares' => array(
+			// 	'description' => 'Number of total times the course youtube material has been shared',
+			// 	'type' => 'int',
+			// 	// not yet implemented
+			// ),
+			
+			// 'commentdata' => array(
+			// 	'description' => 'Complete text data of comments on any YouTube material from this course.',
+			// 	'type' => 'longtext',
+			// 	// not yet implemented -- pending decision about how/whether we store this
+			// ),
+		),
+		'primary key' => array('course_nid'),
+	);
+	$schema['oer_analytics_vids'] = array(
+		'fields' => array(
+			'course_nid' => array(
+				'description' => 'The primary identifier for the course node to which this video belongs.',
+				'type' => 'int',
+				'unsigned' => TRUE,
+				'not null' => TRUE,
+			),
+			
+			'videoid' => array(
+				'description' => 'The primary identifier for a YouTube video.',
+				'type' => 'varchar',
+				'length' => 1024,
+				'not null' => TRUE,
+				'default' => '', // may or may not need to check for this
+			),
+			
+			'totalviews' => array(
+				'description' => 'Number of times this video has been viewed',
+				'type' => 'int',
+				'unsigned' => TRUE,
+				'not null' => TRUE,
+				'default' => 0,
+			),
+			
+			'totalcomments' => array(
+				'description' => 'Number of comments this video has gotten',
+				'type' => 'int',
+				'unsigned' => TRUE,
+				'not null' => TRUE,
+				'default' => 0,
+			),	
+		),
+		'primary key' => array('course_nid'), // change to videoid
+	);
+	//dpm($schema);
+ 	return $schema;
+}
+
+
+
+
+// /**
+// * Implements hook_requirements().
+// *
+// * @returns $requirements
+// *   An array requirements met or not met. 
+// */
+// // hmm
+
+
+
