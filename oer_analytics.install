@@ -141,7 +141,7 @@ function oer_analytics_schema() {
 			'videoid' => array(
 				'description' => 'The primary identifier for a YouTube video.',
 				'type' => 'varchar',
-				'length' => 1024,
+				'length' => 128,
 				'not null' => TRUE,
 				'default' => '', // may or may not need to check for this
 			),
@@ -162,7 +162,7 @@ function oer_analytics_schema() {
 				'default' => 0,
 			),	
 		),
-		'primary key' => array('course_nid'), // change to videoid
+		'primary key' => array('videoid'), // change to videoid
 	);
 	//dpm($schema);
  	return $schema;

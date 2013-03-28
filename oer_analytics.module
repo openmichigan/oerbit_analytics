@@ -3,11 +3,9 @@
 
 /**
 * @file
-* Implements functions to grab Google and YouTube analytics for OERbit site
+* Implements functions to grab media analytics for OERbit site
 * Displays analytics on appropriate course or resource pages.
 */
-
-include 'gapi.class.php';
 
 /** Helper Functions **/
 
@@ -24,7 +22,7 @@ function today() {
 	}
 	$curr_date = $yr."-".$mon."-".$day;
 	return $curr_date;
-} // set time zone later to stop warnings
+} 
 
 
 // for getting youtube video data RESTfully (TODO: update)
@@ -37,27 +35,14 @@ function get_value_fragile($id_string, $xml_string)
 	return $matches[0];
 }
 
-function check_for_updates($table_name) {
-	// TODO - not here though, see book
-}
-
-function update_tables() {
-	// TODO
-
-	// see "check_for_updates" comment notes
-}
-
-/** functions to make API calls/get info **/
-
-
-// GOOGLE ANALYTICS
-
-
-// FUNCTION to get total course-materials-page views, given material page id (? not as important, TODO later)
+// Database table UPDATES TODO ASAP
+// sub-cron distinctions TODO !
 
 
 
-// code below needs refactoring
+/** functions to get info (including making API calls) **/
+
+// TODO most code below needs refactoring
 
 /* FUNCTION to get (correct, aliased) page path from an OERbit node number */
 function get_pagepath($nodenum) {
@@ -69,66 +54,10 @@ function get_pagepath($nodenum) {
 } // does this need better error checking? probably yes
 
 
-/* FUNCTION to get total page views, given page path */
-// refactoring to remove repeated code TODO, separate for easier testing atm
-function get_google_views($page_path) {
-	
-	$profileid = 8335957;
-	$today = today();
-	$spec_filter = "pagePath={$page_path}"; // = instead of =~, let's see how that works for rate limits
-	$ga->requestReportData($profileid,'pagePath','pageviews','-pageviews',$spec_filter,'2010-03-01',$today);
-	$resparr = $ga->getResults();
-	//$title = $resparr[0]->getPageTitle();
-	foreach($resparr as $result) {
-		$totalviews += $result->getPageviews();
-	}
-	return $totalviews;
-}
-
-/* FUNCTION to get total page visits, given page path */
-function get_google_visits($page_path) {
-
-	$profileid = 8335957;
-	$today = today();
-	$spec_filter = "pagePath={$page_path}"; // = instead of =~, let's see how that works for rate limits
-	$ga->requestReportData($profileid,array('pagePath','pageTitle'), array('visits'),'-visits',$spec_filter,'2010-03-01',$today);
-	$resparr = $ga->getResults();
-	//$title = $resparr[0]->getPageTitle();
-	foreach($resparr as $result) {
-		$totalvisits += $result->getVisits();
-	}
-	return $totalvisits;
-}
-
-/* FUNCTION to get total (presumed) zip downloads, given node-id */
-// aka times people clicked on the zip download link
-
-function get_zip_downloads($node_num) { // assumes a course node id
-
-	$profileid = 8335957;
-	$today = today();
-	$spec_filter = "pagePath=node/{$node_num}/zip_download"; // = instead of =~, let's see how that works for rate limits
-	$ga->requestReportData($profileid, array('pagePath'), array('pageviews'),'-pageviews',$spec_filter,'2010-03-01',$today);
-	$resparr = $ga->getResults();
-	foreach($resparr as $result) {
-		$dl_clicks += $result->getPageviews();
-	}
-	return $dl_clicks;
-}
-
-
-// YOUTUBE 
-
 // FUNCTION to get stats by video (given video id and stat desired)
 function get_video_data($videoid, $param) // expects one of: 'views', 'comments', 'favs' as param, (in future incl: 'likes', or 'shares')
 {
 	$baseurl = "https://gdata.youtube.com/feeds/api/videos/".$videoid."?v=2";
-	//$res = file_get_contents($baseurl); // Bad Request happens here at least in one case ! TODO right away
-// getting a 403 Forbidden, e.g. for:
-	// https://gdata.youtube.com/feeds/api/videos/C2nNLavsTYw?v=2
-// unlikely a problem with the fxn itself as this error did not occur in any Views cases
-
-	// problem apparently solved by switching to drupal_http_request and ->data of result, hooray! n.b.
 	$result = drupal_http_request($baseurl);
 	$res = $result->data;
 	$dom = new DOMDocument;
@@ -162,11 +91,6 @@ function get_video_data($videoid, $param) // expects one of: 'views', 'comments'
 // may need to implement sub-functions so as to not do a ton of db calling each time, update daily or w/e
 
 function oer_analytics_cron() {
-	
-	// queries should be from tables in original oerpublish db
-
-	
-	// POPULATE NEW TABLES
 
 	// non-API call population of vids table
 	$vid_db_info = db_query("SELECT field_course_reference_nid, field_video_value FROM {content_field_video} INNER JOIN {content_field_course_reference} WHERE content_field_video.nid = content_field_course_reference.nid AND content_field_video.field_video_provider='youtube' GROUP BY content_field_video.field_video_value"); 
@@ -178,12 +102,6 @@ function oer_analytics_cron() {
 			$vid_items[$v_id] = array($row->field_course_reference_nid, get_video_data($v_id, "views"), get_video_data($v_id, "comments"));
 		}
 	}
-	// foreach($vid_items as $vid => $cnid) {
-	// 	drupal_set_message((st($vid." : ".$cnid)));
-	// }
-
-	// actually inserting into table
-// [[ this works! and it won't let us add duplicate entries (but need to make sure it won't for every cron -- no red errors ) ]]
 
 	$assoc_courses = array();
 	foreach($vid_items as $vid => $cnid) { // Y
@@ -191,15 +109,13 @@ function oer_analytics_cron() {
 		//$assoc_courses[$cnid[0]] = array();
 		$assoc_courses[$cnid[0]] = array('views'=>0,'comments'=>0); // just set up associative arr
 		drupal_set_message($cnid[0]."-".$cnid[1]."-".$cnid[2]);
-		db_query("INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews, totalcomments) VALUES ('{$vid}', {$cnid[0]}, {$cnid[1]}, {$cnid[2]})"); // Y -- works to populate vids table
-		//db_query("INSERT INTO {oer_analytics_youtube} (course_nid, totalviews, totalcomments) VALUES (")
-
+		db_query("INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews, totalcomments) VALUES ('{$vid}', {$cnid[0]}, {$cnid[1]}, {$cnid[2]})"); 
 	} 
 
-	// try at populating Youtube table right here
 
-	// now extracting from populated vids table because it's not broken from before
-	$extr_vids = db_query("SELECT course_nid, totalviews, totalcomments FROM {oer_analytics_vids} GROUP BY course_nid"); // will that aggregate in-query or no?
+	// (TODO) for now, extracting from populated vids table because it's not broken from before
+	// populating youtube table
+	$extr_vids = db_query("SELECT course_nid, totalviews, totalcomments FROM {oer_analytics_vids}");
 	$yt_info = array();
 	while ($row = db_fetch_object($extr_vids)) {
 		$c_ref = $row->course_nid;
@@ -222,92 +138,22 @@ function oer_analytics_cron() {
 
 	foreach($assoc_courses as $cnid => $vals) {
 		db_query("INSERT INTO {oer_analytics_youtube} (course_nid, totalviews, totalcomments) VALUES ({$cnid}, {$vals["views"]}, {$vals["comments"]})");
-	} // seems to work finally, but in the table, e.g. for node 2062, numbers are wrong -- views say 1 when it should be 478, and comments say 1 when they should be 0. What's happening there?
+	}
 
 
-	/***********/
-
-
-	// non-api call population of courses table -- commented out because as stands it hits rate limits
-	$course_db_nids = db_query("SELECT nid FROM {content_type_course}"); // should be all course nids
+	//// populating courses table (more later? see Google_Analytics_Counter module)
+	//// commented out b/c for now, no need
+	// $course_db_nids = db_query("SELECT nid FROM {content_type_course} GROUP BY content_type_course.nid"); // should be all course nids
 
 	// $course_items = array();
 	// while ($row = db_fetch_object($course_db_nids)) {
 	// 	$c_nid = $row->nid;
-	// 	// get page path from db
-	// 	$path = get_pagepath($c_nid);
-	// 	drupal_set_message((st($path)));
-	// 	$course_items[$c_nid] = array(get_google_views($path), get_google_visits($path), get_zip_downloads($c_nid));
+	// 	array_push($course_items, $c_nid); // tmp: just creating an array of course nids (extra work, but to be sure)
 	// }
-	$course_items = array();
-	while ($row = db_fetch_object($course_db_nids)) {
-		$c_nid = $row->nid;
-		array_push($course_items, $c_nid); // tmp: just creating an array of course nids (extra work but to be sure)
-	}
 
-	//foreach($course_items as $nid => $infos) {
-	foreach($course_items as $nid) {
-		//db_query("INSERT INTO {oer_analytics_courses} (nid, totalviews, totalvisits, total_zipdownloads) VALUES ({$c_nid}, {$infos[0]}, {$infos[1]}, {$infos[2]})");
-		db_query("INSERT INTO {oer_analytics_courses} (nid) VALUES ({$nid}) GROUP BY nid");
-	}
-
-
-	// get dynamic information as well
-
-
-
-
-
-// populate the Youtube table from the vids and courses tables... (need only the youtube table really? all w/ the same course ref nid, etc?)
-
-
-
-
-
-
-
-
-
-
-/********************************** */
-
-
-
-	// do population of oer_analytics_youtube table
-	// TODO
-
-	// // create arrays for oer_analytics_courses entries
-	// $course_info = db_query('SELECT nid, dst FROM {content_type_course} INNER JOIN {url_alias} WHERE COALESCE("node/",content_type_course.nid) = url_alias.src'); // doesn't work in phpMyAdmin..
-
-
-
-	// // do population of oer_analytics_courses table
-	// // TODO
-	
-
-
-	// // do population of oer_analytics_youtube table
-
-	// # this query (and ~therefore ensuing code) assumes successful population of other two databases
-	// $youtube_aggr_info = db_query('SELECT course_nid, oer_analytics_vids.totalviews, totalcomments FROM {oer_analytics_vids} INNER JOIN {oer_analytics_courses} WHERE oer_analytics_vids.course_nid = oer_analytics_courses.nid'); // totalviews can be ambig query
-
-
-
-
-	// originally this should only be performed once and updated as we go
-	// so need a different fxn to check for updates and (another?) to update this
-
-
-// // this works! and it won't let us add duplicate entries (but need to make sure it won't for every cron -- no red errors )
-
-// 	foreach($vid_entries as $entry) {
-// 		foreach($entry as $k=>$e) {
-// 			drupal_set_message("Adding course id to YT table");
-// 			db_query("INSERT INTO {oer_analytics_youtube} (course_nid) VALUES ($e)"); //?
-// 		}
-
-// 	}
-	
+	// foreach($course_items as $nid) {
+	// 	db_query("INSERT INTO {oer_analytics_courses} (nid) VALUES ({$nid})");
+	// }
 	
 }
 
@@ -319,12 +165,73 @@ function oer_analytics_cron() {
 * Implementation of hook_block().
 */
 function oer_analytics_block($op = 'list', $delta = 0, $edit = array()) {
-	switch($op) {
-		case 'list':
+  switch ($op) {
+    case 'list':
+      $blocks['oer-analytics'] = array(
+        'info' => t('Course Analytics'),
+        'cache' => BLOCK_CACHE_PER_PAGE, // remember day cached, for speeding things up
+      );
+      return $blocks;
+    case 'view':
+      if (arg(0) == 'node' && is_numeric(arg(1))) { // node_load() -- check node type..
+        return _oer_analytics_block(arg(1)); // gets info that will be displayed
+      }
+  }
+} 
 
+function _oer_analytics_block($nid) {
+	$node = node_load($nid);
+	if ($node->type == 'course') { // correct check?? TODO -- if this, get stuff and themeify and all that
+		$stats = array();
+		$full_stats = array();
+		$vidcount = array();
+		//$db_res = db_query("SELECT oer_analytics_courses.totalviews, oer_analytics_courses.total_zipdownloads, oer_analytics_youtube.totalviews, oer_analytics_youtube.totalcomments FROM {oer_analytics_courses} OUTER JOIN {oer_analytics_youtube} WHERE oer_analytics_youtube.course_nid = {$nid} or oer_analytics_courses.nid = {$nid}");
+
+		//tmp -- these should really all be consolidated -- but just for now
+		$db_res = db_query("SELECT course_nid, totalviews, totalcomments FROM {oer_analytics_youtube} WHERE course_nid = {$nid}");
+
+		//$db_ga_res = db_query("SELECT nid, totalviews, total_zipdownloads FROM {oer_analytics_courses} WHERE nid = {$nid}");
+
+		$db_res_vids = db_query("SELECT videoid FROM {oer_analytics_vids} WHERE course_nid={$nid}");
+
+		$num_rows = $db_res_vids->num_rows;
+
+		// similarly, these should all be consolidated.
+
+		// while ($row = db_fetch_object($db_res_vids)) {
+		// 	array_push($vidcount, "i");
+		// }
+
+		while ($row = db_fetch_object($db_res)) {
+			//$yt_view = $row->oer_analytics_courses.totalviews;
+			$yt_views = $row->totalviews;
+			$yt_comm = $row->totalcomments;
+			$stats[$row->course_nid] = array($yt_views, $yt_comm);
+		}
+
+		while ($row = db_fetch_object($db_ga_res)) {
+			$courseviews = $row->totalviews;
+			$dls = $row->total_zipdownloads;
+			$gastats[$row->nid] = array($courseviews, $dls);
+		}
+
+		foreach($stats as $num=>$arr) {
+			array_push($full_stats, "<b>Aggregate Youtube Views:</b> {$arr[0]}");
+			array_push($full_stats, "<b>Aggregate Youtube Comments:</b> {$arr[1]}");
+			array_push($full_stats, "<b>Youtube Vids in Course:</b> {$num_rows}");
+		}
+
+		// fill in more later
+		if (!empty($full_stats)) {
+			return array(
+				'subject' => t('Course Analytics'),
+				//'content' => theme_item_list(array_merge($full_ga, $full_stats))
+				'content' => theme_item_list($full_stats)
+			);
+		} else {
+			return;
+		}
 	}
-
 }
-
 
 
