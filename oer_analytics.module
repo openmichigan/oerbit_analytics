@@ -233,7 +233,7 @@ function _oer_analytics_counter_path_report($request, $path = NULL, $group_by = 
   if ($path == 'ga_api_all_paths') {
     $cachehere = array(
         'cid' => 'oer_analytics_counter_all',
-        'expire' => oer_analytics_reports_cache_time(),
+        'expire' => google_analytics_reports_cache_time(), // TODO?
         'refresh' => FALSE,
     );
     $new_data = oer_analytics_api_report_data($request, $cachehere);
@@ -243,7 +243,7 @@ function _oer_analytics_counter_path_report($request, $path = NULL, $group_by = 
       $request['filters'] = $filter;
       $cachehere = array(
           'cid' => 'oer_analytics_counter_' . md5(serialize($request)),
-          'expire' => google_analytics_reports_cache_time(),
+          'expire' => google_analytics_reports_cache_time(), // TODO?
           'refresh' => FALSE,
       );
       $new_data = google_analytics_api_report_data($request, $cachehere);
@@ -590,7 +590,12 @@ function _oer_analytics_block($nid) {
 				'subject' => t('Course Analytics'),
 				'content' => theme_item_list(array_merge($ga_stats, $full_stats))
 			);
-		} else {
+		} else if (!empty($ga_stats)) {
+      return array(
+        'subject' => t('Course Analytics'),
+        'content' => theme_item_list($ga_stats)
+      );
+    } else {
 			return;
 		}
 	}
