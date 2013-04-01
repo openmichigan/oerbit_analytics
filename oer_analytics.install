@@ -13,7 +13,7 @@
 * Implements hook_install().
 */
 function oer_analytics_install() {
-	drupal_set_message((st('Installing oer_analytics')));
+	//drupal_set_message((st('Installing oer_analytics')));
 	drupal_install_schema('oer_analytics');
 }
 
@@ -28,7 +28,7 @@ function oer_analytics_uninstall() {
 * Implements hook_enable().
 */
 function oer_analytics_enable() {
-	// What, if anything, needs to happen here?
+	// Nothing needed here at the moment
 }
 
 /**
@@ -38,7 +38,7 @@ function oer_analytics_enable() {
 *   An array providing the DB schema definition required by the schema API.
 */
 function oer_analytics_schema() {
-	drupal_set_message((st('Adding tables for oer_analytics')));
+	//drupal_set_message((st('Adding tables for oer_analytics')));
 	$schema['oer_analytics_courses'] = array(
 		'fields' => array(
 			'nid' => array(
@@ -143,7 +143,7 @@ function oer_analytics_schema() {
 				'type' => 'varchar',
 				'length' => 128,
 				'not null' => TRUE,
-				'default' => '', // may or may not need to check for this
+				'default' => '', // may or may not need to check for this in future
 			),
 			
 			'totalviews' => array(
@@ -162,7 +162,7 @@ function oer_analytics_schema() {
 				'default' => 0,
 			),	
 		),
-		'primary key' => array('videoid'), // change to videoid
+		'primary key' => array('videoid'),
 	);
 	//dpm($schema);
  	return $schema;
@@ -170,14 +170,13 @@ function oer_analytics_schema() {
 
 
 
-
 // /**
 // * Implements hook_requirements().
 // *
 // * @returns $requirements
-// *   An array requirements met or not met. 
+// *   An array of requirements met or not met. 
 // */
-// // hmm
+// // TODO
 
 
 

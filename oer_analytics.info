@@ -2,4 +2,5 @@
 name = Open.Michigan Analytics
 description = Customizes analytics gathering and display for the OpenMichigan Initiative OERbit install.
 core = 6.x
+dependencies = [OAuth, GoogleAnalyticsAPI, Cronplus]
 package = Statistics

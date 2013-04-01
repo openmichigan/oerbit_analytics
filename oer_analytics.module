@@ -352,7 +352,7 @@ function get_video_data($videoid, $param) // expects one of: 'views', 'comments'
 // TODO sub_functions, elysia_cron...
 // TODO clean up and integrate queries
 
-function oer_analytics_cron() {
+function oer_analytics_cronplus_daily() { // changed from cron
 
 	// non-API call population of vids table
 	$vid_db_info = db_query("SELECT field_course_reference_nid, field_video_value FROM {content_field_video} INNER JOIN {content_field_course_reference} WHERE content_field_video.nid = content_field_course_reference.nid AND content_field_video.field_video_provider='youtube' GROUP BY content_field_video.field_video_value"); 
@@ -370,7 +370,7 @@ function oer_analytics_cron() {
 		//drupal_set_message("Adding stuff to YT table");
 		//$assoc_courses[$cnid[0]] = array();
 		$assoc_courses[$cnid[0]] = array('views'=>0,'comments'=>0); // just set up associative arr
-		drupal_set_message($cnid[0]."-".$cnid[1]."-".$cnid[2]);
+		//drupal_set_message($cnid[0]."-".$cnid[1]."-".$cnid[2]);
 		db_query("INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews, totalcomments) VALUES ('{$vid}', {$cnid[0]}, {$cnid[1]}, {$cnid[2]})"); 
 	} 
 
@@ -393,9 +393,9 @@ function oer_analytics_cron() {
 
 	foreach($yt_info as $cref => $vals) {
 		$assoc_courses[$cref]["views"] += (int) $vals[0];
-		drupal_set_message("current views for {$cref} is: {$assoc_courses[$cref]['views']}");
+		//drupal_set_message("current views for {$cref} is: {$assoc_courses[$cref]['views']}");
 		$assoc_courses[$cref]["comments"] += (int) $vals[1];
-		drupal_set_message("current comments for ${cref} is: {$assoc_courses[$cref]['comments']}");
+		//drupal_set_message("current comments for ${cref} is: {$assoc_courses[$cref]['comments']}");
 	}
 
 	foreach($assoc_courses as $cnid => $vals) {
