@@ -398,7 +398,7 @@ function oer_analytics_counter_display($path='') {
   $sumarray = oer_analytics_counter_get_sum_per_path($path);
   $sumarray_dls = oer_analytics_counter_get_sum_per_path($dls_path);
   $course_views = oer_analytics_counter_construct_content($sumarray);
-  // see prior commit -- potential of adding to $block_content, but unlikely at curr. juncture (?)
+  // potential of adding to $block_content, but unlikely at curr. juncture (?)
   if (oer_analytics_counter_construct_content($sumarray_dls) > 5) {
     #$block_content .= '<br /><b>Total Materials Downloads:</b> '; // e.g. (see above comment)
     $course_dls = oer_analytics_counter_construct_content($sumarray_dls);
@@ -406,7 +406,8 @@ function oer_analytics_counter_display($path='') {
   } else {
   	return array("<b>Total Course Views:</b> {$course_views}");
   }
-  // js removed for now; unnecessary  
+  // js removed for now; unnecessary 
+  // other code held in function for future development use
 }
 /* END Google Analytics specific functionality */
 
