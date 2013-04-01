@@ -1,23 +1,61 @@
 <?php
 // $Id$
 
+/*
+ * All original work,
+ * COPYRIGHT 2013
+ *
+ * The Regents of the University of Michigan
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * any later version.
+ *
+ * You may not use the name of The University of Michigan in any
+ * advertising or publicity pertaining to the use of distribution of this software
+ * without specific, written prior authorization. If the above copyright notice
+ * or any other identification of the University of Michigan is included in any
+ * copy of any portion of this software, then the disclaimer below must
+ * also be included.
+ *
+ * THIS SOFTWARE IS PROVIDED AS IS, WITHOUT REPRESENTATION
+ * FROM THE UNIVERSITY OF MICHIGAN AS TO ITS FITNESS FOR ANY
+ * PURPOSE, AND WITHOUT WARRANTY BY THE UNIVERSITY OF
+ * MICHIGAN OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
+ * WITHOUT LIMITATION THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
+ * REGENTS OF THE UNIVERSITY OF MICHIGAN SHALL NOT BE LIABLE
+ * FOR ANY DAMAGES, INCLUDING SPECIAL, INDIRECT, INCIDENTAL, OR
+ * CONSEQUENTIAL DAMAGES, WITH RESPECT TO ANY CLAIM ARISING
+ * OUT OF OR IN CONNECTION WITH THE USE OF THE SOFTWARE, EVEN
+ * IF IT HAS BEEN OR IS HEREAFTER ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGES.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * ATTRIBUTION INFORMATION
+ *
+ * Portions of this module file are excerpted from the 
+ * Google Analytics Counter Drupal module (http://drupal.org/project/google_analytics_counter), 
+ * authored by @Vacilando (http://drupal.org/user/45996).
+ *
+ * All code from the Google Analytics Counter module is licensed under the 
+ * GNU General Public License (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html) 
+ * and the reused and modified code is distributed here with those requirements; 
+ * it is NOT subject to copyright by the Regents of the University of Michigan.
+ * Some modifications to the source code of the Google Analytics Counter module were made, 
+ * and included in this OERbit Analytics module, by @jczetta, 2013.03.29 - 2013.04.02.
+*/
+
 /**
 * @file
 * Implements functions to grab media analytics for OERbit site
 * Displays analytics on appropriate course or resource pages.
 */
-
-
-/*
-Portions of this module file are excerpted from the Google Analytics Counter Drupal module (http://drupal.org/project/google_analytics_counter), authored by @Vacilando (http://drupal.org/user/45996).
-
-All code from the Google Analytics Counter module is licensed under the GNU General Public License (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html) and the reused and modified code is distributed here with those requirements.
-Some modifications to the source code of the Google Analytics Counter module were made, and included in this OERbit Analytics module, by Jaclyn Cohen, 2013.03.29 - 2013.04.02.
-
-This module is primarily authored by Jaclyn Cohen, with input from Kevin Coffman, Kathleen Omollo, Pieter Kleymeer and Dave Malicke.
-[LICENSE/ATTR INFO]
-*/
-
 
 /** Helper Functions **/
 
@@ -46,10 +84,6 @@ function get_value_fragile($id_string, $xml_string)
 	preg_match('%\d+%', substr($xml_string, $place+$amt), $matches);
 	return $matches[0];
 }
-
-// Database table UPDATES TODO ASAP
-// sub-cron distinctions TODO !
-
 
 /* Google Analytics Counter pieces */
 function oer_analytics_counter_construct_content($sumarray) {
@@ -134,6 +168,81 @@ function oer_analytics_counter_get_searched_path() {
   $path = check_plain(implode('/', arg()));
   return $path;
 } // TODO check integration (fine for now)
+
+
+/*
+ * Return a list of paths that are aliased with the given path (including the given path).
+ */
+
+function _oer_analytics_counter_path_aliases($node_path = NULL) {
+  // Default path is the current path.
+  if ($node_path == NULL) {
+    $node_path = check_plain($_GET['q']);
+  }
+
+  // Get the normal node path if it is a node.
+  $node_path = drupal_get_normal_path($node_path);
+
+  // Grab all aliases.
+  $aliases = array($node_path);
+  $result = db_query("SELECT * FROM {url_alias} WHERE src = '%s'", $node_path);
+  while ($row = db_fetch_array($result)) {
+    $aliases[] = $row['dst'];
+  }
+
+  // If this is the front page, add the base path too, and index.php for good measure.
+  // There may be other ways that the user is accessing the front page but we can't
+  // account for them all.
+  if ($node_path == drupal_get_normal_path(variable_get('site_frontpage', 'node'))) {
+    $aliases[] = '';
+    $aliases[] = 'index.php';
+  }
+
+  return $aliases;
+}
+
+function _oer_analytics_counter_path_filter($node_path = NULL) {
+  $aliases = _oer_analytics_counter_path_aliases($node_path);
+
+  // Regular expressions may have max 128 characters -- see http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDataFeed.html#filters
+  $filters = array();
+  foreach($aliases as $alias){
+    $filters[] = "ga:pagePath=~^/".$alias."([?#].*)?$";
+  }
+  return $filters;
+}
+
+/*
+ * Function to collect together data for different aliases.
+ */
+function _oer_analytics_counter_path_report($request, $path = NULL, $group_by = 'date') {
+  $data = array();
+  if ($path == 'ga_api_all_paths') {
+    $cachehere = array(
+        'cid' => 'oer_analytics_counter_all',
+        'expire' => google_analytics_reports_cache_time(),
+        'refresh' => FALSE,
+    );
+    $new_data = google_analytics_api_report_data($request, $cachehere);
+    $data = array_values((array) $new_data->results); // Make an array from inside the object.
+  } else {
+    foreach (_oer_analytics_counter_path_filter($path) as $filter) {
+      $request['filters'] = $filter;
+      $cachehere = array(
+          'cid' => 'google_analytics_counter_' . md5(serialize($request)),
+          'expire' => google_analytics_reports_cache_time(),
+          'refresh' => FALSE,
+      );
+      $new_data = google_analytics_api_report_data($request, $cachehere);
+      $new_data = array_values((array) $new_data->results); // Make an array from inside the object.
+      if (@$new_data) {
+        $data = array_merge($data, $new_data);
+      }
+    }
+  }
+
+  return $data;
+}
 
 // fxn needs cleanup badly !! TODO
 function oer_analytics_counter_get_sum_per_path($path) {
@@ -299,6 +408,7 @@ function oer_analytics_counter_display($path='') {
   }
   // js removed for now; unnecessary  
 }
+/* END Google Analytics specific functionality */
 
 
 /** functions to get YouTube info (including making API calls) **/
@@ -349,28 +459,37 @@ function get_video_data($videoid, $param) // expects one of: 'views', 'comments'
 * Implements hook_cron().
 */
 
-// TODO sub_functions, elysia_cron...
-// TODO clean up and integrate queries
+/**TODOS
+*TODO other cron separation -- ? needs performance testing and future decisions
+*TODO clean up and integrate queries where possible
+*/
 
-function oer_analytics_cronplus_daily() { // changed from cron
+// calls get_video_data appropriately, for use in module's cron (enables further separation of repeated tasks/calls to API)
+function get_api_yt_info($vid_id) {
+	$views = get_video_data($vid_id, "views");
+	$comments = get_video_data($vid_id, "comments");
+	return array($views, $comments);
+}
 
-	// non-API call population of vids table
+
+function oer_analytics_cronplus_daily() { // changed from cron; depends on cronplus module
+
+	// get info from database for making API calls and populating vids table
 	$vid_db_info = db_query("SELECT field_course_reference_nid, field_video_value FROM {content_field_video} INNER JOIN {content_field_course_reference} WHERE content_field_video.nid = content_field_course_reference.nid AND content_field_video.field_video_provider='youtube' GROUP BY content_field_video.field_video_value"); 
 
 	$vid_items = array();
 	while ($row = db_fetch_object($vid_db_info)) {
 		$v_id = $row->field_video_value;
+		$course_nid = $row->field_course_reference_nid;
 		if (strpos($v_id, "PLAYLIST") === FALSE) {
-			$vid_items[$v_id] = array($row->field_course_reference_nid, get_video_data($v_id, "views"), get_video_data($v_id, "comments"));
+			$vid_items[$v_id] = array_merge(array($course_nid),get_api_yt_info($vi_id));
 		}
 	}
 
 	$assoc_courses = array();
-	foreach($vid_items as $vid => $cnid) { // Y
-		//drupal_set_message("Adding stuff to YT table");
-		//$assoc_courses[$cnid[0]] = array();
+	foreach($vid_items as $vid => $cnid) {
 		$assoc_courses[$cnid[0]] = array('views'=>0,'comments'=>0); // just set up associative arr
-		//drupal_set_message($cnid[0]."-".$cnid[1]."-".$cnid[2]);
+		//drupal_set_message($cnid[0]."-".$cnid[1]."-".$cnid[2]); // may still need this for bug checking
 		db_query("INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews, totalcomments) VALUES ('{$vid}', {$cnid[0]}, {$cnid[1]}, {$cnid[2]})"); 
 	} 
 
@@ -384,43 +503,19 @@ function oer_analytics_cronplus_daily() { // changed from cron
 		$yt_info[$c_ref] = array($row->totalviews, $row->totalcomments);
 	}
 
-
-	// foreach($vid_items as $vid => $cnid) {
-	// 	//db_query("INSERT INTO {oer_analytics_youtube} (course_nid, totalviews, totalcomments) VALUES ({$cnid}, {$vals[0]}, {$vals[1]})");
-	// 	$assoc_courses[$cnid[0]]["views"] += $cnid[1];
-	// 	$assoc_courses[$cnid[0]]["comments"] += $cnid[2];
-	// }
-
 	foreach($yt_info as $cref => $vals) {
 		$assoc_courses[$cref]["views"] += (int) $vals[0];
 		//drupal_set_message("current views for {$cref} is: {$assoc_courses[$cref]['views']}");
 		$assoc_courses[$cref]["comments"] += (int) $vals[1];
 		//drupal_set_message("current comments for ${cref} is: {$assoc_courses[$cref]['comments']}");
+		// save for potential bug checking
 	}
 
 	foreach($assoc_courses as $cnid => $vals) {
 		db_query("INSERT INTO {oer_analytics_youtube} (course_nid, totalviews, totalcomments) VALUES ({$cnid}, {$vals["views"]}, {$vals["comments"]})");
 	}
-
-
-	//// populating courses table (more later? see Google_Analytics_Counter module)
-	//// commented out b/c for now, no need
-	// $course_db_nids = db_query("SELECT nid FROM {content_type_course} GROUP BY content_type_course.nid"); // should be all course nids
-
-	// $course_items = array();
-	// while ($row = db_fetch_object($course_db_nids)) {
-	// 	$c_nid = $row->nid;
-	// 	array_push($course_items, $c_nid); // tmp: just creating an array of course nids (extra work, but to be sure)
-	// }
-
-	// foreach($course_items as $nid) {
-	// 	db_query("INSERT INTO {oer_analytics_courses} (nid) VALUES ({$nid})");
-	// }
 	
 }
-
-
-
 
 
 /**
@@ -447,22 +542,12 @@ function _oer_analytics_block($nid) {
 		$stats = array();
 		$full_stats = array();
 		$vidcount = array();
-		//$db_res = db_query("SELECT oer_analytics_courses.totalviews, oer_analytics_courses.total_zipdownloads, oer_analytics_youtube.totalviews, oer_analytics_youtube.totalcomments FROM {oer_analytics_courses} OUTER JOIN {oer_analytics_youtube} WHERE oer_analytics_youtube.course_nid = {$nid} or oer_analytics_courses.nid = {$nid}");
 
-		//tmp -- these should really all be consolidated -- but just for now
+		//tmp -- many following queries should be consolidated; too much looping TODO
 		$db_res = db_query("SELECT course_nid, totalviews, totalcomments FROM {oer_analytics_youtube} WHERE course_nid = {$nid}");
 
-		//$db_ga_res = db_query("SELECT nid, totalviews, total_zipdownloads FROM {oer_analytics_courses} WHERE nid = {$nid}");
-
 		$db_res_vids = db_query("SELECT videoid FROM {oer_analytics_vids} WHERE course_nid={$nid}");
-
 		$num_rows = $db_res_vids->num_rows;
-
-		// similarly, these should all be consolidated.
-
-		// while ($row = db_fetch_object($db_res_vids)) {
-		// 	array_push($vidcount, "i");
-		// }
 
 		while ($row = db_fetch_object($db_res)) {
 			//$yt_view = $row->oer_analytics_courses.totalviews;
@@ -489,7 +574,6 @@ function _oer_analytics_block($nid) {
 		if (!empty($full_stats)) {
 			return array(
 				'subject' => t('Course Analytics'),
-				//'content' => theme_item_list(array_merge($full_ga, $full_stats))
 				'content' => theme_item_list(array_merge($ga_stats, $full_stats))
 			);
 		} else {

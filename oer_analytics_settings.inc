@@ -1,6 +1,14 @@
 <?php
-// this is all taken directly from Google Analytics Counter module, need input of attributions and licensing
-function google_analytics_counter_admin() {
+
+/**
+* This code is reused with minor modifications from the Google Analytics Counter
+* module, authored by @Vacilando. It is licensed under the GNU GPL.
+* (See <http://www.gnu.org/licenses/>, and @file oer_analytics.module for full attribution notice.)
+* Minor (naming) modification to this file made by @jczetta on 2013.04.01.
+*/
+
+// for future development
+function oer_analytics_counter_admin() {
 
   $form['google_analytics_counter_api_refresh'] = array(
       '#type' => 'textfield',
