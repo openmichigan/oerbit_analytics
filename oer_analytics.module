@@ -126,6 +126,18 @@ function oer_analytics_counter_construct_content($sumarray) {
   return $result;
 }
 
+// info for caching, TODO fix properly
+$key = 'google_analytics_counter_' . $path;
+
+// Cache expiration logic is not governed by Drupal's cache_set. Cache life is set to much longer time than what the desired refresh time is so that in case of not receiving fresh value (for whatever reason) there is at least an approximate value available for display.
+// First let's find out when this cache entry was created.
+$cache = cache_get($key);
+$cachecreated = @$cache->created;
+$needfreshvalue = FALSE;
+if ((time() - $cachecreated) > $cache_period) {
+$needfreshvalue = TRUE;
+}
+
 function oer_analytics_counter_gac_get_count() {
 
   $path = oer_analytics_counter_get_searched_path();
