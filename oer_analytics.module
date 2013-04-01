@@ -40,7 +40,8 @@
  * ATTRIBUTION INFORMATION
  *
  * Portions of this module file are excerpted from the 
- * Google Analytics Counter Drupal module (http://drupal.org/project/google_analytics_counter), 
+ * Google Analytics Counter Drupal module (http://drupal.org/project/google_analytics
+_counter), 
  * authored by @Vacilando (http://drupal.org/user/45996).
  *
  * All code from the Google Analytics Counter module is licensed under the 
@@ -95,7 +96,7 @@ function oer_analytics_counter_construct_content($sumarray) {
   #$sum_of_pageviews .= ' title="';
   // If debugger is on, and if the user has admin rights for Google Analytics Counter.
   if (user_access('administer google analytics counter')) {
-    $debuggeron = GOOGLE_ANALYTICS_COUNTER_DEBUG;
+    $debuggeron = oer_analytics_COUNTER_DEBUG;
     if ($debuggeron == 1) {
       $titlemsg = $sumarray[3];
     }
@@ -127,7 +128,7 @@ function oer_analytics_counter_construct_content($sumarray) {
 }
 
 // info for caching, TODO fix properly
-$key = 'google_analytics_counter_' . $path;
+$key = 'oer_analytics_counter_' . $path;
 
 // Cache expiration logic is not governed by Drupal's cache_set. Cache life is set to much longer time than what the desired refresh time is so that in case of not receiving fresh value (for whatever reason) there is at least an approximate value available for display.
 // First let's find out when this cache entry was created.
@@ -141,7 +142,7 @@ $needfreshvalue = TRUE;
 function oer_analytics_counter_gac_get_count() {
 
   $path = oer_analytics_counter_get_searched_path();
-  // This gives the AJAX call URI, e.g. /google_analytics_counter/gac_get_count/node/264455. We need to get the calling page's URI.
+  // This gives the AJAX call URI, e.g. /oer_analytics_counter/gac_get_count/node/264455. We need to get the calling page's URI.
   $path = explode("gac_get_count", $path);
   $path = $path[1];
   // We have something like /node/264455. Remove the leading slash.
@@ -153,7 +154,7 @@ function oer_analytics_counter_gac_get_count() {
   /**
    * Show manner of retrieval in debug.
    */
-  if (GOOGLE_ANALYTICS_COUNTER_DEBUG == 1) {
+  if (oer_analytics_COUNTER_DEBUG == 1) {
     if (!empty($sumarray)) {
       $sumarray[3] .= " Data retrieved using AJAX.";
     }
@@ -162,11 +163,11 @@ function oer_analytics_counter_gac_get_count() {
   // Return Data
   $json = array();
   if (!empty($sumarray)) {
-    $json['#google-analytics-counter-' . md5($path)] = oer_analytics_counter_construct_content($sumarray); # . ' (AJAX)';
+    $json['#oer-analytics-counter-' . md5($path)] = oer_analytics_counter_construct_content($sumarray); # . ' (AJAX)';
     //$json['#google-analytics-counter'] = oer_analytics_counter_construct_content($sumarray);
-    $json['#google-analytics-counter-' . md5($dls_path)] = oer_analytics_counter_construct_content($sumarray_dls); # . ' (AJAX)';
+    $json['#oer-analytics-counter-' . md5($dls_path)] = oer_analytics_counter_construct_content($sumarray_dls); # . ' (AJAX)';
   } else {
-    $json['#google-analytics-counter-' . md5($path)] = NULL;
+    $json['#oer-analytics-counter-' . md5($path)] = NULL;
     //$json['#google-analytics-counter'] = NULL;
   }
 
@@ -232,16 +233,16 @@ function _oer_analytics_counter_path_report($request, $path = NULL, $group_by = 
   if ($path == 'ga_api_all_paths') {
     $cachehere = array(
         'cid' => 'oer_analytics_counter_all',
-        'expire' => google_analytics_reports_cache_time(),
+        'expire' => oer_analytics_reports_cache_time(),
         'refresh' => FALSE,
     );
-    $new_data = google_analytics_api_report_data($request, $cachehere);
+    $new_data = oer_analytics_api_report_data($request, $cachehere);
     $data = array_values((array) $new_data->results); // Make an array from inside the object.
   } else {
     foreach (_oer_analytics_counter_path_filter($path) as $filter) {
       $request['filters'] = $filter;
       $cachehere = array(
-          'cid' => 'google_analytics_counter_' . md5(serialize($request)),
+          'cid' => 'oer_analytics_counter_' . md5(serialize($request)),
           'expire' => google_analytics_reports_cache_time(),
           'refresh' => FALSE,
       );
@@ -270,23 +271,23 @@ function oer_analytics_counter_get_sum_per_path($path) {
 
   // Watch out for http://code.google.com/apis/analytics/docs/gdata/gdataDeveloperGuide.html#quota
   //$cache_period = 60*60*24;
-  $cache_period = round(variable_get('google_analytics_counter_api_refresh', 6) * 3600);
+  $cache_period = round(variable_get('oer_analytics_counter_api_refresh', 6) * 3600);
   //$cache_period = 90;
   // Needing to stay under the Google Analytics API quota, let's count how many API retrievals were made in the last 24 hours. We should take into consideration that the quota is reset at midnight PST (while time() always returns UTC) - that could be looked into one day.
-  $dayquota = variable_get('google_analytics_counter_dayquota', array(0, 0));
+  $dayquota = variable_get('oer_analytics_counter_dayquota', array(0, 0));
   if ($timenow - $dayquota[0] >= 86400) {
     // If last API request was more than a day ago, set monitoring time to now.
     $dayquota[0] = $timenow;
     $dayquota[1] = 0;
-    variable_set('google_analytics_counter_dayquota', array($dayquota[0], 0));
+    variable_set('oer_analytics_counter_dayquota', array($dayquota[0], 0));
   }
   $apirequestallowed = FALSE;
-  $maxdailyrequests = variable_get('google_analytics_counter_api_dayquota', 10000); // see http://code.google.com/apis/analytics/docs/gdata/gdataDeveloperGuide.html#quota
+  $maxdailyrequests = variable_get('oer_analytics_counter_api_dayquota', 10000); // see http://code.google.com/apis/analytics/docs/gdata/gdataDeveloperGuide.html#quota
   if ($dayquota[1] <= $maxdailyrequests) {
     $apirequestallowed = TRUE;
   }
 
-  $key = 'google_analytics_counter_' . $path;
+  $key = 'oer_analytics_counter_' . $path;
 
   // Cache expiration logic is not governed by Drupal's cache_set. Cache life is set to much longer time than what the desired refresh time is so that in case of not receiving fresh value (for whatever reason) there is at least an approximate value available for display.
   // First let's find out when this cache entry was created.
@@ -300,8 +301,8 @@ function oer_analytics_counter_get_sum_per_path($path) {
   // Let's say we only allow retrieval from Google Analytics API once a second. We have to watch the quotas - see http://code.google.com/apis/analytics/docs/gdata/gdataDeveloperGuide.html#quota
   $noconcurrency = FALSE;
   // $concurrencymax = 1 means that the difference of current and recorded time must be at least 1 second, which is all right. Should not need to be higher, except maybe for testing.
-  $concurrencymax = variable_get('google_analytics_counter_concurrency', 1);
-  if (($timenow - variable_get('google_analytics_counter_latest', ($timenow - $concurrencymax)) >= $concurrencymax)) { // If the value is not yet there (first run!), use ($timenow-$concurrencymax) otherwise it will always detect concurrency!
+  $concurrencymax = variable_get('oer_analytics_counter_concurrency', 1);
+  if (($timenow - variable_get('oer_analytics_counter_latest', ($timenow - $concurrencymax)) >= $concurrencymax)) { // If the value is not yet there (first run!), use ($timenow-$concurrencymax) otherwise it will always detect concurrency!
     $noconcurrency = TRUE;
   }
   $cachedvalue = '';
@@ -312,10 +313,10 @@ function oer_analytics_counter_get_sum_per_path($path) {
   } else {
 
     // Let's set a time variable indicating no other script should retrieve Google Analytics data within some period.
-    variable_set('google_analytics_counter_latest', $timenow);
+    variable_set('oer_analytics_counter_latest', $timenow);
 
     // Let's increase the count of API requests in order to check for daily quota excess.
-    variable_set('google_analytics_counter_dayquota', array($dayquota[0], ($dayquota[1] + 1)));
+    variable_set('oer_analytics_counter_dayquota', array($dayquota[0], ($dayquota[1] + 1)));
 
     $request = array(
         'dimensions' => array('ga:date'), // date would not be necessary for totals, but if we calculate stats of views per day, we need it
@@ -347,7 +348,7 @@ function oer_analytics_counter_get_sum_per_path($path) {
     $safe_margin_cache_time = $cache_period * 50;
     cache_set($key, $result, 'cache', $safe_margin_cache_time);
     // All right. Now - if it's desired and if it's a node page - update Drupal's own page view counter
-    if (variable_get('google_analytics_counter_update_node_counter', 0) == 1) {
+    if (variable_get('oer_analytics_counter_update_node_counter', 0) == 1) {
 
       // Let's get the nid
       $nid = FALSE;
@@ -386,14 +387,14 @@ function oer_analytics_counter_get_sum_per_path($path) {
 
     // If extrapolation is desired, add it to the retrieved count.
     $addextrapolated = 0;
-    if (variable_get('google_analytics_counter_extrapolation', 1) == 1) {
+    if (variable_get('oer_analytics_counter_extrapolation', 1) == 1) {
       $addextrapolated = round($extrapolated_for_current_cache_period);
       $result[0] += $addextrapolated;
     }
   }
   //// For debug information, see prior commit.
    return $result;
-} // end google_analytics_counter_get_sum_per_path
+} // end oer_analytics_counter_get_sum_per_path
 
 function oer_analytics_counter_display($path='') {
 
@@ -402,7 +403,7 @@ function oer_analytics_counter_display($path='') {
     $dls_path = "{$path}/zip_download";
   }
 
-  $refreshinseconds = variable_get('google_analytics_counter_ajax_refresh', '');
+  $refreshinseconds = variable_get('oer_analytics_counter_ajax_refresh', '');
   if (!is_numeric($refreshinseconds))
     $refreshinseconds = 0;
   $msec = $refreshinseconds * 1000;
