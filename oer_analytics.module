@@ -7,6 +7,18 @@
 * Displays analytics on appropriate course or resource pages.
 */
 
+
+/*
+Portions of this module file are excerpted from the Google Analytics Counter Drupal module (http://drupal.org/project/google_analytics_counter), authored by @Vacilando (http://drupal.org/user/45996).
+
+All code from the Google Analytics Counter module is licensed under the GNU General Public License (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html) and the reused and modified code is distributed here with those requirements.
+Some modifications to the source code of the Google Analytics Counter module were made, and included in this OERbit Analytics module, by Jaclyn Cohen, 2013.03.29 - 2013.04.02.
+
+This module is primarily authored by Jaclyn Cohen, with input from Kevin Coffman, Kathleen Omollo, Pieter Kleymeer and Dave Malicke.
+[LICENSE/ATTR INFO]
+*/
+
+
 /** Helper Functions **/
 
 function today() {
