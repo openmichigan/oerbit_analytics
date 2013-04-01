@@ -197,7 +197,7 @@ function oer_analytics_counter_get_sum_per_path($path) {
     // Let's increase the count of API requests in order to check for daily quota excess.
     variable_set('google_analytics_counter_dayquota', array($dayquota[0], ($dayquota[1] + 1)));
 
-    // Grab the data using http://drupal.org/project/google_analytics_reports -- see http://drupal.org/node/1144994#comment-4431586
+    // Grab the data using http://drupal.org/project/google_analytics_reports -- see http://drupal.org/node/1144994#comment-4431586 [[ interesting ]]
     /*
       $request = array(
       #'#dimensions' => array('pagePath', 'date'),
