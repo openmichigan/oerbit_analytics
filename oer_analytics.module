@@ -189,7 +189,7 @@ function _oer_analytics_counter_path_aliases($node_path = NULL) {
 
   // Grab all aliases.
   $aliases = array($node_path);
-  $result = db_query("SELECT * FROM {url_alias} WHERE src = '%s'", $node_path);
+  $result = db_query('SELECT * FROM {url_alias} WHERE src = '%s'', $node_path);
   while ($row = db_fetch_array($result)) {
     $aliases[] = $row['dst'];
   }
@@ -479,7 +479,7 @@ function get_video_data($videoid, $param) // expects one of: 'views', 'comments'
 //function oer_analytics_cronplus_daily() { // changed from cron; depends on cronplus module
 function oer_analytics_cron() {
 	// get info from database for making API calls and populating vids table
-	$vid_db_info = db_query("SELECT field_course_reference_nid, field_video_value FROM {content_field_video} INNER JOIN {content_field_course_reference} WHERE content_field_video.nid = content_field_course_reference.nid AND content_field_video.field_video_provider='youtube' GROUP BY content_field_video.field_video_value"); 
+	$vid_db_info = db_query('SELECT field_course_reference_nid, field_video_value FROM {content_field_video} INNER JOIN {content_field_course_reference} WHERE content_field_video.nid = content_field_course_reference.nid AND content_field_video.field_video_provider='youtube' GROUP BY content_field_video.field_video_value'); 
 
 	$vid_items = array();
 	while ($row = db_fetch_object($vid_db_info)) {
@@ -489,7 +489,7 @@ function oer_analytics_cron() {
       $a = get_video_data($v_id, "views");
       $b = get_video_data($v_id, "comments");
 			$vid_items[$v_id] = array($course_nid, $a, $b);
-      drupal_set_message((st($vid_items[$v_id][1])));
+      //drupal_set_message((st($vid_items[$v_id][1])));
 		}
 	}
 
@@ -498,20 +498,11 @@ function oer_analytics_cron() {
 		//$assoc_courses[$cnid[0]] = array('views'=>0,'comments'=>0); // just set up associative arr
 		//drupal_set_message($cnid[0]."-".$cnid[1]."-".$cnid[2]); // may still need this for bug checking
 		//db_query("INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews, totalcomments) VALUES ('{$vid}', {$cnid[0]}, {$cnid[1]}, {$cnid[2]})"); 
-    db_query("INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews) VALUES ('{$vid}', {$cnid[0]}, {$cnid[1]})"); 
+    db_query('INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews) VALUES (%s, %d, %d)', $vid, $cnid[0], $cnid[1]); 
 	} 
 
-
-	// (TODO) for now, extracting from populated vids table because it's not broken from before
-	// populating youtube table
-
-	//$extr_vids = db_query("SELECT course_nid, totalviews, totalcomments FROM {oer_analytics_vids}");
-
 	$yt_info = array();
-	// while ($row = db_fetch_object($extr_vids)) {
-	// 	$c_ref = $row->course_nid;
-	// 	$yt_info[$c_ref] = array($row->totalviews, $row->totalcomments);
-	// }
+
   foreach($vid_items as $vid_id => $otherinfos) {
     if (array_key_exists($otherinfos[0], $yt_info)) {
       $yt_info[$otherinfos[0]]["views"] += (int) $otherinfos[1];
@@ -522,21 +513,10 @@ function oer_analytics_cron() {
     }
   }
 
-	// foreach($yt_info as $cref => $vals) {
-	// 	$assoc_courses[$cref]["views"] += (int) $vals[0];
-	// 	//drupal_set_message("current views for {$cref} is: {$assoc_courses[$cref]['views']}");
-	// 	$assoc_courses[$cref]["comments"] += (int) $vals[1];
-	// 	//drupal_set_message("current comments for ${cref} is: {$assoc_courses[$cref]['comments']}");
-	// 	// save for potential bug checking
-	// }
-
-	// foreach($assoc_courses as $cnid => $vals) {
-	// 	db_query("INSERT INTO {oer_analytics_youtube} (course_nid, totalviews, totalcomments) VALUES ({$cnid}, {$vals["views"]}, {$vals["comments"]})");
-	// }
 
   foreach($yt_info as $cref => $vals) {
     //db_query("INSERT INTO {oer_analytics_youtube} (course_nid, totalviews, totalcomments) VALUES ({$cref}, {$vals["views"]}, {$vals["comments"]})");
-    db_query("INSERT INTO {oer_analytics_youtube} (course_nid, totalviews) VALUES ({$cref}, {$vals["views"]})");
+    db_query('INSERT INTO {oer_analytics_youtube} (course_nid, totalviews) VALUES (%d, %d)', $cref, $vals["views"]);
   }
 	
 }
@@ -568,9 +548,9 @@ function _oer_analytics_block($nid) {
 		$vidcount = array();
 
 		//tmp -- many following queries should be consolidated; too much looping TODO
-		$db_res = db_query("SELECT course_nid, totalviews, totalcomments FROM {oer_analytics_youtube} WHERE course_nid = {$nid}");
+		$db_res = db_query('SELECT course_nid, totalviews, totalcomments FROM {oer_analytics_youtube} WHERE course_nid = %d', $nid);
 
-		$db_res_vids = db_query("SELECT videoid FROM {oer_analytics_vids} WHERE course_nid={$nid}");
+		$db_res_vids = db_query('SELECT videoid FROM {oer_analytics_vids} WHERE course_nid= %d', $nid);
 		$num_rows = $db_res_vids->num_rows;
 
 		while ($row = db_fetch_object($db_res)) {
