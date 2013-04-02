@@ -76,15 +76,6 @@ function today() {
 } 
 
 
-// for getting youtube video data RESTfully (TODO: update)
-function get_value_fragile($id_string, $xml_string)
-{
-	$amt = strlen($id_string);
-	$place = strpos($xml_string, $id_string);
-	$matches = array();
-	preg_match('%\d+%', substr($xml_string, $place+$amt), $matches);
-	return $matches[0];
-}
 
 /* Google Analytics Counter pieces */
 function oer_analytics_counter_construct_content($sumarray) {
@@ -438,31 +429,30 @@ function get_pagepath($nodenum) {
 } // TODO may need improved error checking
 
 
+
+// // for getting youtube video data RESTfully (TODO: update)
+// function get_value_fragile($id_string, $xml_string)
+// {
+//   $amt = strlen($id_string);
+//   $place = strpos($xml_string, $id_string);
+//   $matches = array();
+//   preg_match('%[\d,]+%', substr($xml_string, $place+$amt), $matches);
+//   // foreach($matches as $m) {
+//   //   print $m
+//   // }
+//   return (int) $matches[0];
+// }
+
 /* get stats by video (given video id and stat desired) */
 function get_video_data($videoid, $param) // expects one of: 'views', 'comments', 'favs' as param, (in future incl: 'likes', or 'shares')
 {
-	$baseurl = "https://gdata.youtube.com/feeds/api/videos/".$videoid."?v=2";
-	$result = drupal_http_request($baseurl);
-	$res = $result->data;
-	$dom = new DOMDocument;
-	$dom->loadXML($res); 
-	$result_str = $dom->saveXML();
-
-	$xml_str = simplexml_load_string($result_str);
-	$title = $xml_str->title;
-
-	// somewhat fragile -- but given v2 API response robust, and easily adjustable for diff vals
-	// v3 API in future.
-	if ($param == 'views') {
-		return get_value_fragile("viewCount=", $result_str);
-	}
-	if ($param == 'comments') {
-		return get_value_fragile("countHint=", $result_str);
-	}
-	if ($param == 'favs') {
-		return get_value_fragile("favoriteCount=", $result_str); // don't display these in phase1 of Analytics Project
-	}
-	return "ERROR"; // if it gets past the others - tmpry control in case of programmer forgetting
+  $JSON = file_get_contents("https://gdata.youtube.com/feeds/api/videos/{$videoid}?v=2&alt=json");
+  $JSON_Data = json_decode($JSON);
+  $views = $JSON_Data->{'entry'}->{'yt$statistics'}->{'viewCount'};
+  //$comments = $JSON_Data->{'entry'}->{'yt$statistics'}->{'countHint'};
+  if ($param == 'views') {
+    return (int) $views;
+  }
 }
 
 
@@ -479,15 +469,15 @@ function get_video_data($videoid, $param) // expects one of: 'views', 'comments'
 */
 
 // calls get_video_data appropriately, for use in module's cron (enables further separation of repeated tasks/calls to API)
-function get_api_yt_info($vid_id) {
-	$views = get_video_data($vid_id, "views");
-	$comments = get_video_data($vid_id, "comments");
-	return array($views, $comments);
-}
+// function get_api_yt_info($vid_id) {
+// 	$views = get_video_data($vid_id, "views");
+// 	$comments = get_video_data($vid_id, "comments");
+// 	return array($views, $comments);
+// }
 
 
-function oer_analytics_cronplus_daily() { // changed from cron; depends on cronplus module
-
+//function oer_analytics_cronplus_daily() { // changed from cron; depends on cronplus module
+function oer_analytics_cron() {
 	// get info from database for making API calls and populating vids table
 	$vid_db_info = db_query("SELECT field_course_reference_nid, field_video_value FROM {content_field_video} INNER JOIN {content_field_course_reference} WHERE content_field_video.nid = content_field_course_reference.nid AND content_field_video.field_video_provider='youtube' GROUP BY content_field_video.field_video_value"); 
 
@@ -496,38 +486,58 @@ function oer_analytics_cronplus_daily() { // changed from cron; depends on cronp
 		$v_id = $row->field_video_value;
 		$course_nid = $row->field_course_reference_nid;
 		if (strpos($v_id, "PLAYLIST") === FALSE) {
-			$vid_items[$v_id] = array_merge(array($course_nid),get_api_yt_info($vi_id));
+      $a = get_video_data($v_id, "views");
+      $b = get_video_data($v_id, "comments");
+			$vid_items[$v_id] = array($course_nid, $a, $b);
+      drupal_set_message((st($vid_items[$v_id][1])));
 		}
 	}
 
 	$assoc_courses = array();
 	foreach($vid_items as $vid => $cnid) {
-		$assoc_courses[$cnid[0]] = array('views'=>0,'comments'=>0); // just set up associative arr
+		//$assoc_courses[$cnid[0]] = array('views'=>0,'comments'=>0); // just set up associative arr
 		//drupal_set_message($cnid[0]."-".$cnid[1]."-".$cnid[2]); // may still need this for bug checking
-		db_query("INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews, totalcomments) VALUES ('{$vid}', {$cnid[0]}, {$cnid[1]}, {$cnid[2]})"); 
+		//db_query("INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews, totalcomments) VALUES ('{$vid}', {$cnid[0]}, {$cnid[1]}, {$cnid[2]})"); 
+    db_query("INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews) VALUES ('{$vid}', {$cnid[0]}, {$cnid[1]})"); 
 	} 
 
 
 	// (TODO) for now, extracting from populated vids table because it's not broken from before
 	// populating youtube table
-	$extr_vids = db_query("SELECT course_nid, totalviews, totalcomments FROM {oer_analytics_vids}");
+
+	//$extr_vids = db_query("SELECT course_nid, totalviews, totalcomments FROM {oer_analytics_vids}");
+
 	$yt_info = array();
-	while ($row = db_fetch_object($extr_vids)) {
-		$c_ref = $row->course_nid;
-		$yt_info[$c_ref] = array($row->totalviews, $row->totalcomments);
-	}
+	// while ($row = db_fetch_object($extr_vids)) {
+	// 	$c_ref = $row->course_nid;
+	// 	$yt_info[$c_ref] = array($row->totalviews, $row->totalcomments);
+	// }
+  foreach($vid_items as $vid_id => $otherinfos) {
+    if (array_key_exists($otherinfos[0], $yt_info)) {
+      $yt_info[$otherinfos[0]]["views"] += (int) $otherinfos[1];
+      //$yt_info[$otherinfos[0]]["comments"] += (int) $otherinfos[2];
+    } else {
+      $yt_info[$otherinfos[0]]["views"] = (int) $otherinfos[1];
+      //$yt_info[$otherinfos[0]]["comments"] = (int) $otherinfos[2];
+    }
+  }
 
-	foreach($yt_info as $cref => $vals) {
-		$assoc_courses[$cref]["views"] += (int) $vals[0];
-		//drupal_set_message("current views for {$cref} is: {$assoc_courses[$cref]['views']}");
-		$assoc_courses[$cref]["comments"] += (int) $vals[1];
-		//drupal_set_message("current comments for ${cref} is: {$assoc_courses[$cref]['comments']}");
-		// save for potential bug checking
-	}
+	// foreach($yt_info as $cref => $vals) {
+	// 	$assoc_courses[$cref]["views"] += (int) $vals[0];
+	// 	//drupal_set_message("current views for {$cref} is: {$assoc_courses[$cref]['views']}");
+	// 	$assoc_courses[$cref]["comments"] += (int) $vals[1];
+	// 	//drupal_set_message("current comments for ${cref} is: {$assoc_courses[$cref]['comments']}");
+	// 	// save for potential bug checking
+	// }
 
-	foreach($assoc_courses as $cnid => $vals) {
-		db_query("INSERT INTO {oer_analytics_youtube} (course_nid, totalviews, totalcomments) VALUES ({$cnid}, {$vals["views"]}, {$vals["comments"]})");
-	}
+	// foreach($assoc_courses as $cnid => $vals) {
+	// 	db_query("INSERT INTO {oer_analytics_youtube} (course_nid, totalviews, totalcomments) VALUES ({$cnid}, {$vals["views"]}, {$vals["comments"]})");
+	// }
+
+  foreach($yt_info as $cref => $vals) {
+    //db_query("INSERT INTO {oer_analytics_youtube} (course_nid, totalviews, totalcomments) VALUES ({$cref}, {$vals["views"]}, {$vals["comments"]})");
+    db_query("INSERT INTO {oer_analytics_youtube} (course_nid, totalviews) VALUES ({$cref}, {$vals["views"]})");
+  }
 	
 }
 
@@ -566,8 +576,8 @@ function _oer_analytics_block($nid) {
 		while ($row = db_fetch_object($db_res)) {
 			//$yt_view = $row->oer_analytics_courses.totalviews;
 			$yt_views = $row->totalviews;
-			$yt_comm = $row->totalcomments;
-			$stats[$row->course_nid] = array($yt_views, $yt_comm);
+			//$yt_comm = $row->totalcomments;
+			$stats[$row->course_nid] = array($yt_views);
 		}
 
 		while ($row = db_fetch_object($db_ga_res)) {
@@ -578,7 +588,7 @@ function _oer_analytics_block($nid) {
 
 		foreach($stats as $num=>$arr) {
 			array_push($full_stats, "<b>Aggregate Youtube Views:</b> {$arr[0]}");
-			array_push($full_stats, "<b>Aggregate Youtube Comments:</b> {$arr[1]}");
+			//array_push($full_stats, "<b>Aggregate Youtube Comments:</b> {$arr[1]}");
 			array_push($full_stats, "<b>Youtube Vids in Course:</b> {$num_rows}");
 		}
 
