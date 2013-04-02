@@ -1,16 +1,16 @@
-## OER Analytics
+# OERbit Analytics
 
-### The what
+## The what
 
 This is a Drupal module built to pair with the OERbit Drupal framework developed by Open.Michigan. It gets YouTube and Google Analytics of the media/web pages published on the [Open.Michigan website](http://open.umich.edu) and displays them in a block, as a themed list (in the current iteration, you may use the Context module to choose where it appears).
 
 Module **CURRENTLY IN DEVELOPMENT** (the display in particular), and pending significant updates.
 
-### Dependencies
+## Dependencies
 
 This module relies on the installation of the [OAuth]() module, the [Google Analytics API]() module, and the [Cronplus]() module.
 
-### Use
+## Use
 
 Make sure you have the dependencies installed.
 
@@ -30,7 +30,7 @@ Adjust ```oer_analytics_cron```/cronplus as you see fit or need for your peforma
 ...that's all you need for the moment (but again, it depends heavily on an instance mirroring Open.Michigan's OERbit, including the structure of the (MySQL) database)
 
 
-### The process
+## The process
 
 As for what is actually going on as the module 'grabs the info and displays it in a block': 
 
@@ -48,7 +48,7 @@ The arrows in the diagram, you'll notice, are labeled with numbers -- the approx
 
 5) All this information, whether from the database, live API responses, or cache, is aggregated properly and displayed.
 
-### TODOS and concerns
+## TODOS and concerns
 
 * TODO: Make functionality more modularizable (e.g. easier to pick out different likely desired pieces of information in the Google Analytics section of the ```oer_analytics.module``` file without digging too much into the code)
 
