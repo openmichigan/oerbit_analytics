@@ -1,5 +1,7 @@
 # OERbit Analytics
 
+---
+
 ## The what
 
 This is a Drupal module built to pair with the OERbit Drupal framework developed by Open.Michigan. It gets YouTube and Google Analytics of the media/web pages published on the [Open.Michigan website](http://open.umich.edu) and displays them in a block, as a themed list (in the current iteration, you may use the Context module to choose where it appears).
@@ -8,7 +10,7 @@ Module **CURRENTLY IN DEVELOPMENT** (the display in particular), and pending sig
 
 ## Dependencies
 
-This module relies on the installation of the [OAuth]() module, the [Google Analytics API]() module, and the [Cronplus]() module.
+This module relies on the installation of the [OAuth](http://drupal.org/project/oauth) module, the [Google Analytics API](http://drupal.org/project/google_analytics_api) module, and the [Cronplus](http://drupal.org/project/cronplus) module.
 
 ## Use
 
@@ -22,7 +24,7 @@ From GitHub:
 
 ```cd``` to the ```sites/all/modules``` folder of your OERbit instance.
 
-```git clone [REPO URL] oer_analytics``` in that folder.
+```git clone https://github.com/openmichigan/oerbit_analytics.git oer_analytics``` in that folder.
 
 Adjust ```oer_analytics_cron```/cronplus as you see fit or need for your peformance constraints, etc.
 
@@ -44,7 +46,7 @@ The arrows in the diagram, you'll notice, are labeled with numbers -- the approx
 
 3) The aggregated information from steps (1) and (2) is properly aggregated and stored in new database tables for the oer_analytics module
 
-4) This is the 'fourth part' of the process, but it is also a more continuous process really, operating on a slightly different timeline: leveraging the Google Analytics API module, which this depends on, to grab Google Analytics data for the correct pages in the setup G.A. (Google Analytics) profile. Specifically, this module will grab views for every page of node type _course_ (defined in [OERbit]() ), and for each course which has a bulk download, loads of the bulk download page for that course. (Further updates pending.)
+4) This is the 'fourth part' of the process, but it is also a more continuous process really, operating on a slightly different timeline: leveraging the Google Analytics API module, which this depends on, to grab Google Analytics data for the correct pages in the setup G.A. (Google Analytics) profile. Specifically, this module will grab views for every page of node type _course_ (defined in [OERbit](https://github.com/openmichigan/OERbit) ), and for each course which has a bulk download, loads of the bulk download page for that course. (Further updates pending.)
 
 5) All this information, whether from the database, live API responses, or cache, is aggregated properly and displayed.
 
@@ -65,5 +67,6 @@ Steps (1) and (2) in the **_process_** section are the current largest concerns 
 
 ### Licensing information
 
+(for now) See ```oer_analytics.module```, line 1 following.
 
 
