@@ -65,7 +65,7 @@ Steps (1) and (2) in the **_process_** section are the current largest concerns 
 
 * Stay tuned for potential course module integration or something totally different
 
-### Licensing information
+## Licensing information
 
 (for now) See ```oer_analytics.module```, line 1 following.
 
