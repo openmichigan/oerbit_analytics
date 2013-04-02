@@ -59,7 +59,7 @@ Steps (1) and (2) in the **_process_** section are the current largest concerns 
 
 * TODO (current): Database updates need correction.
 
-* TODO (current): There's a bug in the YouTube metadata aggregation code causing some numbers to be incorrect -- working on this.
+* TODO (current): There may be one remaining bug in the YouTube metadata aggregation code causing some numbers to be incorrect -- working on this. (Previously noted bug is amended and OK now)
 
 * TODO: Update YouTube gathering to the v3 API (and potentially integrate fully with the Google Analytics API).
 
