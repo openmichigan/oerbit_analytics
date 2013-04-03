@@ -429,20 +429,6 @@ function get_pagepath($nodenum) {
 } // TODO may need improved error checking
 
 
-
-// // for getting youtube video data RESTfully (TODO: update)
-// function get_value_fragile($id_string, $xml_string)
-// {
-//   $amt = strlen($id_string);
-//   $place = strpos($xml_string, $id_string);
-//   $matches = array();
-//   preg_match('%[\d,]+%', substr($xml_string, $place+$amt), $matches);
-//   // foreach($matches as $m) {
-//   //   print $m
-//   // }
-//   return (int) $matches[0];
-// }
-
 /* get stats by video (given video id and stat desired) */
 function get_video_data($videoid, $param) // expects one of: 'views', 'comments', 'favs' as param, (in future incl: 'likes', or 'shares')
 {
@@ -467,13 +453,6 @@ function get_video_data($videoid, $param) // expects one of: 'views', 'comments'
 *TODO other cron separation -- ? needs performance testing and future decisions
 *TODO clean up and integrate queries where possible
 */
-
-// calls get_video_data appropriately, for use in module's cron (enables further separation of repeated tasks/calls to API)
-// function get_api_yt_info($vid_id) {
-// 	$views = get_video_data($vid_id, "views");
-// 	$comments = get_video_data($vid_id, "comments");
-// 	return array($views, $comments);
-// }
 
 
 //function oer_analytics_cronplus_daily() { // changed from cron; depends on cronplus module
