@@ -189,7 +189,7 @@ function _oer_analytics_counter_path_aliases($node_path = NULL) {
 
   // Grab all aliases.
   $aliases = array($node_path);
-  $result = db_query('SELECT * FROM {url_alias} WHERE src = '%s'', $node_path);
+  $result = db_query("SELECT * FROM {url_alias} WHERE src = ${node_path}"); // TODO securify (doublequoted due to PHP error appearing - ?)
   while ($row = db_fetch_array($result)) {
     $aliases[] = $row['dst'];
   }
@@ -430,7 +430,7 @@ function get_pagepath($nodenum) {
 
 
 /* get stats by video (given video id and stat desired) */
-function get_video_data($videoid, $param) // expects one of: 'views', 'comments', 'favs' as param, (in future incl: 'likes', or 'shares')
+function get_video_data($videoid, $param) // expects one of: 'views', 'comments', favs' as param, (in future incl: 'likes', or 'shares') -- comments, favs etc needs updating
 {
   $JSON = file_get_contents("https://gdata.youtube.com/feeds/api/videos/{$videoid}?v=2&alt=json");
   $JSON_Data = json_decode($JSON);
@@ -452,13 +452,28 @@ function get_video_data($videoid, $param) // expects one of: 'views', 'comments'
 /**TODOS
 *TODO other cron separation -- ? needs performance testing and future decisions
 *TODO clean up and integrate queries where possible
+*TODO increased modularity (of fields retrieved especially -- admin form?)
+*TODO neater functionality to vids->youtube table make aggregation happen; too much looping and querying
 */
 
+function oer_analytics_cronplus_daily() { // changed from cron; depends on cronplus module
+  $id_res = db_query('SELECT videoid FROM {oer_analytics_vids}');
+  while ($row = db_fetch_object($id_res)) {
+    $vid_id = $row->videoid;
+    // TODO other fields
+    $views = get_video_data($vid_id, "views");
+    db_update('oer_analytics_vids', array('totalviews'=>$views)); // TODO: update other fields as implemented, etc
+  }
 
-//function oer_analytics_cronplus_daily() { // changed from cron; depends on cronplus module
-function oer_analytics_cron() {
+  // YOUTUBE update
+  //db_update('oer_analytics_youtube', array('totalviews'))
+}
+
+function _oer_analytics_table_population() { // when and how often? perhaps with install
+  // also want to redo this monthly (take care of duplicate errors?) for new vids? or weekly?
+
 	// get info from database for making API calls and populating vids table
-	$vid_db_info = db_query('SELECT field_course_reference_nid, field_video_value FROM {content_field_video} INNER JOIN {content_field_course_reference} WHERE content_field_video.nid = content_field_course_reference.nid AND content_field_video.field_video_provider='youtube' GROUP BY content_field_video.field_video_value'); 
+	$vid_db_info = db_query('SELECT field_course_reference_nid, field_video_value FROM {content_field_video} INNER JOIN {content_field_course_reference} WHERE content_field_video.nid = content_field_course_reference.nid AND content_field_video.field_video_provider="youtube" GROUP BY content_field_video.field_video_value'); 
 
 	$vid_items = array();
 	while ($row = db_fetch_object($vid_db_info)) {
@@ -466,22 +481,19 @@ function oer_analytics_cron() {
 		$course_nid = $row->field_course_reference_nid;
 		if (strpos($v_id, "PLAYLIST") === FALSE) {
       $a = get_video_data($v_id, "views");
-      $b = get_video_data($v_id, "comments");
+      //$b = get_video_data($v_id, "comments");
 			$vid_items[$v_id] = array($course_nid, $a, $b);
       //drupal_set_message((st($vid_items[$v_id][1])));
 		}
 	}
 
-	$assoc_courses = array();
 	foreach($vid_items as $vid => $cnid) {
-		//$assoc_courses[$cnid[0]] = array('views'=>0,'comments'=>0); // just set up associative arr
 		//drupal_set_message($cnid[0]."-".$cnid[1]."-".$cnid[2]); // may still need this for bug checking
 		//db_query("INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews, totalcomments) VALUES ('{$vid}', {$cnid[0]}, {$cnid[1]}, {$cnid[2]})"); 
     db_query('INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews) VALUES (%s, %d, %d)', $vid, $cnid[0], $cnid[1]); 
 	} 
 
-	$yt_info = array();
-
+	$yt_info = array(); // TODO un-overcomp
   foreach($vid_items as $vid_id => $otherinfos) {
     if (array_key_exists($otherinfos[0], $yt_info)) {
       $yt_info[$otherinfos[0]]["views"] += (int) $otherinfos[1];
