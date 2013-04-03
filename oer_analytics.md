@@ -10,7 +10,7 @@ Module **CURRENTLY IN DEVELOPMENT** (the display in particular), and pending sig
 
 ## Dependencies
 
-This module relies on the installation of the [OAuth](http://drupal.org/project/oauth) module, the [Google Analytics API](http://drupal.org/project/google_analytics_api) module, and the [Cronplus](http://drupal.org/project/cronplus) module.
+This module depends on the [OAuth](http://drupal.org/project/oauth) module, the [Google Analytics API](http://drupal.org/project/google_analytics_api) module, and the [Cronplus](http://drupal.org/project/cronplus) module.
 
 ## Use
 
