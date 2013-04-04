@@ -189,7 +189,7 @@ function _oer_analytics_counter_path_aliases($node_path = NULL) {
 
   // Grab all aliases.
   $aliases = array($node_path);
-  $result = db_query("SELECT * FROM {url_alias} WHERE src = ${node_path}"); // TODO securify (doublequoted due to PHP error appearing - ?)
+  $result = db_query('SELECT * FROM {url_alias} WHERE src = "%s"', $node_path); // TODO securify (doublequoted due to PHP error appearing - ?)
   while ($row = db_fetch_array($result)) {
     $aliases[] = $row['dst'];
   }
@@ -248,7 +248,7 @@ function _oer_analytics_counter_path_report($request, $path = NULL, $group_by = 
   return $data;
 }
 
-// fxn needs cleanup badly !! TODO
+// TODO fxn needs cleanup
 function oer_analytics_counter_get_sum_per_path($path) {
 
   $timenow = time();
