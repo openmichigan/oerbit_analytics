@@ -430,6 +430,8 @@ function get_pagepath($nodenum) {
 
 
 /* get stats by video (given video id and stat desired) */
+// TODO: move over the updates to v3
+
 function get_video_data($videoid, $param) // expects one of: 'views', 'comments', favs' as param, (in future incl: 'likes', or 'shares') -- comments, favs etc needs updating
 {
   $JSON = file_get_contents("https://gdata.youtube.com/feeds/api/videos/{$videoid}?v=2&alt=json");
