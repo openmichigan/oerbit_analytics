@@ -54,6 +54,51 @@ _counter),
  * and included in this OERbit Analytics module, by @jczetta, 2013.03.29 - 2013.04.02.
 */
 
+// TODO should be here? -- admin form
+/**
+* Form builder. Configure oer_analytics module.
+* 
+* @see system_settings_form()
+*/
+
+function oer_analytics_admin() {
+  $form = array();
+  $form['oer_analytics_gac_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('YouTube account application key'),
+    '#size' => 128,
+    '#maxlength' => 1024,
+    '#default_value' => variable_get('oer_analytics_gac_key', NULL),
+    '#description' => t('The secret key your YouTube Data API requires.'),
+    '#required' => TRUE,
+  );
+
+  $form['submit'] = array(
+  '#type' => 'submit',
+  '#value' => t('Save'),
+  );
+  return system_settings_form($form);
+}
+
+
+// hook_menu -- will document properly shortly TODO
+function oer_analytics_menu() {
+
+  $items = array();
+
+  $items['admin/settings/oer-analytics'] = array(
+    'title' => 'Open.Michigan Analytics module settings',
+    'description' => 'Description of your analytics settings page',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('oer_analytics_admin'),
+    'access arguments' => array('administer oeranalytics settings'),
+    'type' => MENU_NORMAL_ITEM,
+   );
+
+  return $items;
+}
+
+
 /**
 * @file
 * Implements functions to grab media analytics for OERbit site
@@ -80,6 +125,8 @@ function today() {
 
 
 /* Google Analytics Counter pieces */
+
+// TODO: this constructing content, how much is it really doing?
 function oer_analytics_counter_construct_content($sumarray) {
 
   $result = '';
@@ -129,7 +176,7 @@ $cache = cache_get($key);
 $cachecreated = @$cache->created;
 $needfreshvalue = FALSE;
 if ((time() - $cachecreated) > $cache_period) {
-$needfreshvalue = TRUE;
+  $needfreshvalue = TRUE;
 }
 
 function oer_analytics_counter_gac_get_count() {
@@ -144,16 +191,7 @@ function oer_analytics_counter_gac_get_count() {
   $sumarray = oer_analytics_counter_get_sum_per_path($path);
   $sumarray_dls = oer_analytics_counter_get_sum_per_path($dls_path);
 
-  /**
-   * Show manner of retrieval in debug.
-   */
-  if (oer_analytics_COUNTER_DEBUG == 1) {
-    if (!empty($sumarray)) {
-      $sumarray[3] .= " Data retrieved using AJAX.";
-    }
-  }
-
-  // Return Data
+  // Return Data -- TODO ??
   $json = array();
   if (!empty($sumarray)) {
     $json['#oer-analytics-counter-' . md5($path)] = oer_analytics_counter_construct_content($sumarray); # . ' (AJAX)';
@@ -180,6 +218,7 @@ function oer_analytics_counter_get_searched_path() {
  * Return a list of paths that are aliased with the given path (including the given path).
  */
 
+//  TODO is there an occurrence where this is needed?
 function _oer_analytics_counter_path_aliases($node_path = NULL) {
   // Default path is the current path.
   if ($node_path == NULL) {
@@ -221,6 +260,7 @@ function _oer_analytics_counter_path_filter($node_path = NULL) {
 /*
  * Function to collect together data for different aliases.
  */
+// TODO: again, is this necessary for our case?
 function _oer_analytics_counter_path_report($request, $path = NULL, $group_by = 'date') {
   $data = array();
   if ($path == 'ga_api_all_paths') {
@@ -250,7 +290,7 @@ function _oer_analytics_counter_path_report($request, $path = NULL, $group_by = 
   return $data;
 }
 
-// TODO fxn needs cleanup
+// TODO fxn needs cleanup -- but how much?
 function oer_analytics_counter_get_sum_per_path($path) {
 
   $timenow = time();
@@ -259,7 +299,7 @@ function oer_analytics_counter_get_sum_per_path($path) {
   if ($path == 'all') {
     // Let's use a less common path (this is for GA API)
     // Requires GA API to adopt http://drupal.org/node/949986
-    $path = 'ga_api_all_paths';
+    $path = 'ga_api_all_paths'; // ?
   }
 
   // Watch out for http://code.google.com/apis/analytics/docs/gdata/gdataDeveloperGuide.html#quota
@@ -389,11 +429,12 @@ function oer_analytics_counter_get_sum_per_path($path) {
    return $result;
 } // end oer_analytics_counter_get_sum_per_path
 
+// TODO: current display -- should this change to an interface with js anything? or something else?
 function oer_analytics_counter_display($path='') {
 
   if ($path == '') {
     $path = oer_analytics_counter_get_searched_path();
-    $dls_path = "{$path}/zip_download";
+    $dls_path = "{$path}/zip_download"; // OER download add
   }
 
   $refreshinseconds = variable_get('oer_analytics_counter_ajax_refresh', '');
@@ -402,15 +443,15 @@ function oer_analytics_counter_display($path='') {
   $msec = $refreshinseconds * 1000;
 
   $sumarray = oer_analytics_counter_get_sum_per_path($path);
-  $sumarray_dls = oer_analytics_counter_get_sum_per_path($dls_path);
+  $sumarray_dls = oer_analytics_counter_get_sum_per_path($dls_path); // OER download add
   $course_views = oer_analytics_counter_construct_content($sumarray);
   // potential of adding to $block_content, but unlikely at curr. juncture (?)
-  if (oer_analytics_counter_construct_content($sumarray_dls) > 5) {
+  if (oer_analytics_counter_construct_content($sumarray_dls) > 5) { // OER download add 
     #$block_content .= '<br /><b>Total Materials Downloads:</b> '; // e.g. (see above comment)
-    $course_dls = oer_analytics_counter_construct_content($sumarray_dls);
-    return array("<b>Total Course Views:</b> {$course_views}", "<b>Total Bulk Downloads:</b> {$course_dls}");
+    $course_dls = oer_analytics_counter_construct_content($sumarray_dls); // OER download add
+    return array("<b>Total Course Views:</b> {$course_views}", "<b>Total Bulk Downloads:</b> {$course_dls}"); // OER download add
   } else {
-  	return array("<b>Total Course Views:</b> {$course_views}");
+  	return array("<b>Total Course Views:</b> {$course_views}"); // OER download add (sort of)
   }
   // js removed for now; unnecessary 
   // other code held in function for future development use
@@ -437,13 +478,37 @@ function get_pagepath($nodenum) {
 function get_video_data($videoid, $param) // expects one of: 'views', 'comments', favs' as param, (in future incl: 'likes', or 'shares') -- comments, favs etc needs updating
 {
   $JSON = file_get_contents("https://gdata.youtube.com/feeds/api/videos/{$videoid}?v=2&alt=json");
-  $JSON_Data = json_decode($JSON);
+  drupal_set_message((st($videoid)));
+  drupal_set_message((st($JSON)));
+  $JSON_Data = json_decode($JSON, TRUE);
   $views = $JSON_Data->{'entry'}->{'yt$statistics'}->{'viewCount'};
   //$comments = $JSON_Data->{'entry'}->{'yt$statistics'}->{'countHint'};
   if ($param == 'views') {
     return (int) $views;
   }
 }
+
+// TODO: BELOW -- v3 update -- problems with db and cron here, going back to old version for a bit
+// DO NOT push -- insecure because key -- form implemented to save it but not to access that form data TODO
+// function get_video_data($videoid) { // NEW
+//    need API key as well -- secure
+//   $baseurl = "https://www.googleapis.com/youtube/v3/videos?id={$videoid}&key={$api_key}&part=snippet,statistics";
+
+//     $JSON = file_get_contents($baseurl);
+//     $json_data = json_decode($JSON);
+//     // after requesting and json parsing and all that
+//     // needs testing, of course
+//     $tmp = $json_data->{'items'}[0]->{'statistics'};
+//     //print $tmp;
+//     $views = (int) $tmp->{'viewCount'};
+//     $likes = (int) $tmp->{'likeCount'};
+//     $dislikes = (int) $tmp->{'dislikeCount'};
+//     $favs = (int) $tmp->{'favoriteCount'};
+//     $comments = (int) $tmp->{'commentCount'};
+//     $title = $json_data->{'items'}[0]->{'snippet'}->{'title'}; 
+//     //return $title;
+//     return $views; // can easily update to return and then store all other vals
+// }
 
 
 /********* HOOK METHODS *********/
@@ -473,8 +538,9 @@ function oer_analytics_cronplus_daily() { // changed from cron; depends on cronp
   //db_update('oer_analytics_youtube', array('totalviews'))
 }
 
-function _oer_analytics_table_population() { // when and how often? perhaps with install
-  // also want to redo this monthly (take care of duplicate errors?) for new vids? or weekly?
+//function _oer_analytics_table_population() { // when and how often? perhaps with install
+function oer_analytics_cron() { // temporarily for testing, return to above commented line later (probably)
+ // also want to redo this monthly (take care of duplicate errors?) for new vids? or weekly?
 
 	// get info from database for making API calls and populating vids table
 	$vid_db_info = db_query('SELECT field_course_reference_nid, field_video_value FROM {content_field_video} INNER JOIN {content_field_course_reference} WHERE content_field_video.nid = content_field_course_reference.nid AND content_field_video.field_video_provider="youtube" GROUP BY content_field_video.field_video_value'); 
@@ -494,7 +560,9 @@ function _oer_analytics_table_population() { // when and how often? perhaps with
 	foreach($vid_items as $vid => $cnid) {
 		//drupal_set_message($cnid[0]."-".$cnid[1]."-".$cnid[2]); // may still need this for bug checking
 		//db_query("INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews, totalcomments) VALUES ('{$vid}', {$cnid[0]}, {$cnid[1]}, {$cnid[2]})"); 
-    db_query('INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews) VALUES (%s, %d, %d)', $vid, $cnid[0], $cnid[1]); 
+   
+    //db_query('INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews) VALUES (%s, %d, %d)', $vid, $cnid[0], $cnid[1]); 
+    db_query("INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews) VALUES (${vid}, ${cnid[0]}, ${cnid[1]})"); 
 	} 
 
 	$yt_info = array(); // TODO un-overcomp
@@ -576,7 +644,7 @@ function _oer_analytics_block($nid) {
 				'content' => theme_item_list(array_merge($ga_stats, $full_stats))
 			);
 		} else if (!empty($ga_stats)) {
-      return array(
+      return array( // if I want to build a bunch of html to display somewhere...
         'subject' => t('Course Analytics'),
         'content' => theme_item_list($ga_stats)
       );
