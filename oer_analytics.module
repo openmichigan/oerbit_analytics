@@ -491,8 +491,8 @@ function get_video_data($videoid, $param) // expects one of: 'views', 'comments'
 // TODO: BELOW -- v3 update -- problems with db and cron here, going back to old version for a bit
 // DO NOT push -- insecure because key -- form implemented to save it but not to access that form data TODO
 // function get_video_data($videoid) { // NEW
-//    need API key as well -- secure
-//   $baseurl = "https://www.googleapis.com/youtube/v3/videos?id={$videoid}&key={$api_key}&part=snippet,statistics";
+
+//     $baseurl = "https://www.googleapis.com/youtube/v3/videos?id={$videoid}&key={$api_key}&part=snippet,statistics";
 
 //     $JSON = file_get_contents($baseurl);
 //     $json_data = json_decode($JSON);
@@ -562,7 +562,7 @@ function oer_analytics_cron() { // temporarily for testing, return to above comm
 		//db_query("INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews, totalcomments) VALUES ('{$vid}', {$cnid[0]}, {$cnid[1]}, {$cnid[2]})"); 
    
     //db_query('INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews) VALUES (%s, %d, %d)', $vid, $cnid[0], $cnid[1]); 
-    db_query("INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews) VALUES (${vid}, ${cnid[0]}, ${cnid[1]})"); 
+    db_query("INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews) VALUES ('${vid}', ${cnid[0]}, ${cnid[1]})"); 
 	} 
 
 	$yt_info = array(); // TODO un-overcomp
