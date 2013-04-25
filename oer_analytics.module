@@ -122,7 +122,12 @@ function today() {
 	return $curr_date;
 } 
 
+// implements hook_init(), docs later
+function oer_analytics_init(){
+  drupal_add_css(drupal_get_path('module', 'oer_analytics') .'/oer_analytics.css');
 
+  drupal_add_js(drupal_get_path('module', 'oer_analytics') .'/oer_analytics.js');
+}
 
 /* Google Analytics Counter pieces */
 
@@ -433,7 +438,15 @@ function oer_analytics_counter_get_sum_per_path($path) {
 function oer_analytics_counter_display($path='') {
 
   if ($path == '') {
-    $path = oer_analytics_counter_get_searched_path();
+    $path = oer_analytics_counter_get_searched_path(); // for materials this is a PROBLEM
+    // TIME TO WHITEBOARD
+    if (strpos($path, "/materials") != FALSE) { // TODO fix fragile -- ifs really unnec
+      $path = str_replace("/materials", "", $path);
+    } else if (strpos($path, "/highlights") != FALSE) {
+      $path = str_replace("/highlights", "", $path);
+    } else if (strpos($path, "/sessions")){
+      $path = str_replace("/sessions", "", $path);
+    }
     $dls_path = "{$path}/zip_download"; // OER download add
   }
 
@@ -449,9 +462,11 @@ function oer_analytics_counter_display($path='') {
   if (oer_analytics_counter_construct_content($sumarray_dls) > 5) { // OER download add 
     #$block_content .= '<br /><b>Total Materials Downloads:</b> '; // e.g. (see above comment)
     $course_dls = oer_analytics_counter_construct_content($sumarray_dls); // OER download add
-    return array("<b>Total Course Views:</b> {$course_views}", "<b>Total Bulk Downloads:</b> {$course_dls}"); // OER download add
+    //return array("<b>Total Course Views:</b> {$course_views}", "<b>Total Bulk Downloads:</b> {$course_dls}"); // OER download add
+    return array($course_views, $course_dls);
   } else {
-  	return array("<b>Total Course Views:</b> {$course_views}"); // OER download add (sort of)
+  	//return array("<b>Total Course Views:</b> {$course_views}"); // OER download add (sort of)
+    return array($course_views);
   }
   // js removed for now; unnecessary 
   // other code held in function for future development use
@@ -630,23 +645,71 @@ function _oer_analytics_block($nid) {
 		}
 
 		foreach($stats as $num=>$arr) {
-			array_push($full_stats, "<b>Aggregate Youtube Views:</b> {$arr[0]}");
-			//array_push($full_stats, "<b>Aggregate Youtube Comments:</b> {$arr[1]}");
-			array_push($full_stats, "<b>Youtube Vids in Course:</b> {$num_rows}");
+			// array_push($full_stats, "<b>Aggregate Youtube Views:</b> {$arr[0]}");
+			// //array_push($full_stats, "<b>Aggregate Youtube Comments:</b> {$arr[1]}");
+			// array_push($full_stats, "<b>Youtube Vids in Course:</b> {$num_rows}");
+      array_push($full_stats, $arr[0]);
+      array_push($full_stats, $num_rows);
 		}
 
-		$ga_stats = oer_analytics_counter_display();
+		$ga_stats = oer_analytics_counter_display(); // can I rewrite this? refactor later!
 
 		// fill in more later
 		if (!empty($full_stats)) {
 			return array(
 				'subject' => t('Course Analytics'),
-				'content' => theme_item_list(array_merge($ga_stats, $full_stats))
-			);
+				//'content' => theme_item_list(array_merge($ga_stats, $full_stats))
+
+        'content' => <<<EOD
+<div class="oer-analytics-button">
+  <div class="oer-analytics" id="oer-analytics-visits">
+    <span id="visits-num">
+      <span id="googleanalytics-oer">
+        <p class="statsnums" id="visits-num">{$ga_stats[0]}</p>
+        <p class="oer-analytics-small-descr">total course visits</p>
+      </span>
+      <span id="googleanalytics-dls">
+        <p class="statsnums" id="dls-num">{$ga_stats[1]}</p>
+        <p class="oer-analytics-small-descr">bulk downloads</p>
+      </span>
+    </span>
+  </div>
+
+  <div class="oer-analytics" id="oer-analytics-yt-views">
+    <span id="visits-num">
+      <span id="yt-analytics">
+        <p class="statsnums" id="yt-views">{$full_stats[0]}</p>
+        <p class="oer-analytics-small-descr">views on <a href="http://www.youtube.com/user/openmichigan" target=_blank>YouTube</a></p>
+        <p class="oer-analytics-small-descr">of all {$full_stats[1]} <br> vids in course</p>
+      </span>
+    </span>
+  </div>
+
+</div>
+EOD
+);
 		} else if (!empty($ga_stats)) {
-      return array( // if I want to build a bunch of html to display somewhere...
+      return array( 
         'subject' => t('Course Analytics'),
-        'content' => theme_item_list($ga_stats)
+        //'content' => theme_item_list($ga_stats)
+        'content' => <<<EOD
+<a href="" id="oer-analytics-button" onclick="hide(oer-analytics-button)">
+<div class="oer-analytics-button" id="oer-analytics-button">
+  <div class="oer-analytics" id="oer-analytics-visits">
+    <span id="visits-num">
+      <span id="googleanalytics-oer">
+        <p class="statsnums" id="visits-num">{$ga_stats[0]}</p>
+        <p class="oer-analytics-small-descr">total course visits</p>
+      </span>
+      <span id="googleanalytics-dls">
+        <p class="statsnums" id="dls-num">{$ga_stats[1]}</p>
+        <p class="oer-analytics-small-descr">downloads</p>
+      </span>
+    </span>
+  </div>
+</div>
+</a>
+EOD
       );
     } else {
 			return;

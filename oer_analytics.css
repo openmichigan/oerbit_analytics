@@ -1,0 +1,115 @@
+
+
+.oer-analytics-button {
+    width: 132px;
+    max-height: 350px;
+    position: fixed;
+    right:0;
+    top: 10%;
+    background-opacity:5%;
+    display: block;
+    font-family: helvetica, arial, sans-serif;
+    font-size: 300px;
+    font-weight: lighter;
+    padding: 5px 5px;
+    text-align: center;
+    margin: 30px 0 0;
+    background-color:#BBBFC9;
+    border: 1px solid #0C142E;
+    border-opacity: 36%;
+    /*-moz-border-radius: 5px; */
+    border-radius: 5px;
+    text-shadow: 0 1px 0 #666666;
+}
+
+p.statsnums {
+    font-size:45px;
+    margin-bottom: 3px;
+}
+
+p.oer-analytics-small-descr {
+    margin-top: 1px;
+    margin-bottom: 4px;
+    font-size: 13px;
+    text-shadow: none;
+}
+
+
+a.oer-analytics-button {
+    visibility: visible;
+}
+a.oer-analytics-button:visited {
+    display:none;
+}
+
+/*a#extra_button {
+    text-decoration: none;
+    outline: none;
+    color: #EEE;
+}*/
+/*
+.oer-analytics-button { 
+    background: #12A7EC repeat-x scroll 0 0;
+    border: 1px solid #DE263B;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    text-shadow: 0 1px 0 #666666;
+    
+}*/
+
+#oer-analytics-visits {
+    /* anything needed ?? to sep from yt? */
+}
+
+
+span#visits-num {
+    /* is anything needed here */
+}
+
+
+
+
+#oer-analytics-visits:active {
+    background-image: none;
+}
+/*#oer-analytics-visits:hover {
+    background-position: 0 -5px;
+    color: #FFF;
+    text-shadow: 0 1px 0 #333;
+}*/
+#googleanalytics-oer:hover, #googleanalytics-dls:hover, #yt-analytics:hover {
+    background-position: 0 -5px;
+    color: #FFF;
+    text-shadow: 0 1px 0 #333;
+}
+
+
+/*####FIXED ON THE SIDE####
+
+.oer-analytics-button { 
+    background: #7F1622 url(/sites/default/files/images/extra-gradient.png) repeat-x scroll 0 0;
+    border: 2px solid #EEE;
+    -moz-border-radius: 5px 0 0 5px;
+    border-radius: 5px 0 0 5px;
+    position: fixed;
+    /*z-index: 100000; */ /*
+    top: 15%;
+    width: 300px;
+    right: -2px;
+    left: auto;
+    margin-left: auto;
+    margin-right: 0;
+    overflow: hidden;
+    text-align: right;
+}
+   
+ #oer-analyics-button:hover {
+    background-position: 0 -5px;
+    color: #FFF;
+    text-shadow: 0 1px 0 #333;
+    border: 2px solid #FFF;
+} */
+
+
+
+
