@@ -493,40 +493,44 @@ function get_pagepath($nodenum) {
 /* get stats by video (given video id and stat desired) */
 // TODO: move over the updates to v3
 
-function get_video_data($videoid, $param) // expects one of: 'views', 'comments', favs' as param, (in future incl: 'likes', or 'shares') -- comments, favs etc needs updating
-{
-  $JSON = file_get_contents("https://gdata.youtube.com/feeds/api/videos/{$videoid}?v=2&alt=json");
-  drupal_set_message((st($videoid)));
-  drupal_set_message((st($JSON)));
-  $JSON_Data = json_decode($JSON, TRUE);
-  $views = $JSON_Data->{'entry'}->{'yt$statistics'}->{'viewCount'};
-  //$comments = $JSON_Data->{'entry'}->{'yt$statistics'}->{'countHint'};
-  if ($param == 'views') {
-    return (int) $views;
-  }
-}
+// function get_video_data($videoid, $param) // expects one of: 'views', 'comments', favs' as param, (in future incl: 'likes', or 'shares') -- comments, favs etc needs updating
+// {
+//   $JSON_first = drupal_http_request("https://gdata.youtube.com/feeds/api/videos/{$videoid}?v=2&alt=json");
+//   $JSON = $JSON_first->data;
+//   drupal_set_message((st($videoid)));
+//   //drupal_set_message((st($JSON)));
+//   $JSON_Data = json_decode($JSON, TRUE);
+//   $views = $JSON_Data->{'entry'}->{'yt$statistics'}->{'viewCount'};
+//   //$comments = $JSON_Data->{'entry'}->{'yt$statistics'}->{'countHint'};
+//   if ($param == 'views') {
+//     return (int) $views;
+//   }
+// }
 
 // TODO: BELOW -- v3 update -- problems with db and cron here, going back to old version for a bit
 // DO NOT push -- insecure because key -- form implemented to save it but not to access that form data TODO
-// function get_video_data($videoid) { // NEW
+function get_video_data($videoid) { // NEW
+    //$api_key = "AIzaSyAv0ljLFFoCpJ0PEsdyJ6ycmqfP6ZOQj6E";
 
-//     $baseurl = "https://www.googleapis.com/youtube/v3/videos?id={$videoid}&key={$api_key}&part=snippet,statistics";
+    $api_key = variable_get('oer_analytics_gac_key', array()); // excitement?
+    $baseurl = "https://www.googleapis.com/youtube/v3/videos?id={$videoid}&key={$api_key}&part=snippet,statistics";
 
-//     $JSON = file_get_contents($baseurl);
-//     $json_data = json_decode($JSON);
-//     // after requesting and json parsing and all that
-//     // needs testing, of course
-//     $tmp = $json_data->{'items'}[0]->{'statistics'};
-//     //print $tmp;
-//     $views = (int) $tmp->{'viewCount'};
-//     $likes = (int) $tmp->{'likeCount'};
-//     $dislikes = (int) $tmp->{'dislikeCount'};
-//     $favs = (int) $tmp->{'favoriteCount'};
-//     $comments = (int) $tmp->{'commentCount'};
-//     $title = $json_data->{'items'}[0]->{'snippet'}->{'title'}; 
-//     //return $title;
-//     return $views; // can easily update to return and then store all other vals
-// }
+    $JSON_first = drupal_http_request($baseurl);
+    $JSON = $JSON_first->data;
+    $json_data = json_decode($JSON);
+    // after requesting and json parsing and all that
+    // needs testing, of course
+    $tmp = $json_data->{'items'}[0]->{'statistics'};
+    //print $tmp;
+    $views = (int) $tmp->{'viewCount'};
+    $likes = (int) $tmp->{'likeCount'};
+    $dislikes = (int) $tmp->{'dislikeCount'};
+    $favs = (int) $tmp->{'favoriteCount'};
+    $comments = (int) $tmp->{'commentCount'};
+    $title = $json_data->{'items'}[0]->{'snippet'}->{'title'}; 
+    //return $title;
+    return $views; // can easily update to return and then store all other vals
+}
 
 
 /********* HOOK METHODS *********/
@@ -548,7 +552,7 @@ function oer_analytics_cronplus_daily() { // changed from cron; depends on cronp
   while ($row = db_fetch_object($id_res)) {
     $vid_id = $row->videoid;
     // TODO other fields
-    $views = get_video_data($vid_id, "views");
+    $views = get_video_data($vid_id);
     db_update('oer_analytics_vids', array('totalviews'=>$views)); // TODO: update other fields as implemented, etc
   }
 
@@ -568,15 +572,16 @@ function oer_analytics_cron() { // temporarily for testing, return to above comm
 		$v_id = $row->field_video_value;
 		$course_nid = $row->field_course_reference_nid;
 		if (strpos($v_id, "PLAYLIST") === FALSE) {
-      $a = get_video_data($v_id, "views");
+      $a = get_video_data($v_id);
+      drupal_set_message($a);
       //$b = get_video_data($v_id, "comments");
-			$vid_items[$v_id] = array($course_nid, $a, $b);
+			$vid_items[$v_id] = array($course_nid, $a);
       //drupal_set_message((st($vid_items[$v_id][1])));
 		}
 	}
 
 	foreach($vid_items as $vid => $cnid) {
-		//drupal_set_message($cnid[0]."-".$cnid[1]."-".$cnid[2]); // may still need this for bug checking
+		drupal_set_message($cnid[0]."-".$cnid[1]); // may still need this for bug checking
 		//db_query("INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews, totalcomments) VALUES ('{$vid}', {$cnid[0]}, {$cnid[1]}, {$cnid[2]})"); 
    
     //db_query('INSERT INTO {oer_analytics_vids} (videoid, course_nid, totalviews) VALUES (%s, %d, %d)', $vid, $cnid[0], $cnid[1]); 
