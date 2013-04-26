@@ -440,13 +440,16 @@ function oer_analytics_counter_display($path='') {
   if ($path == '') {
     $path = oer_analytics_counter_get_searched_path(); // for materials this is a PROBLEM
     // TIME TO WHITEBOARD
-    if (strpos($path, "/materials") != FALSE) { // TODO fix fragile -- ifs really unnec
-      $path = str_replace("/materials", "", $path);
-    } else if (strpos($path, "/highlights") != FALSE) {
-      $path = str_replace("/highlights", "", $path);
-    } else if (strpos($path, "/sessions")){
-      $path = str_replace("/sessions", "", $path);
-    }
+    // if (strpos($path, "/materials") != FALSE) { // TODO fix fragile -- ifs really unnec
+    //   $path = str_replace("/materials", "", $path);
+    // } else if (strpos($path, "/highlights") != FALSE) {
+    //   $path = str_replace("/highlights", "", $path);
+    // } else if (strpos($path, "/sessions")){
+    //   $path = str_replace("/sessions", "", $path);
+    // }
+    $path = str_replace("/materials", "", $path);
+    $path = str_replace("/highlights", "", $path);
+    $path = str_replace("/sessions", "", $path);
     $dls_path = "{$path}/zip_download"; // OER download add
   }
 
@@ -463,10 +466,10 @@ function oer_analytics_counter_display($path='') {
     #$block_content .= '<br /><b>Total Materials Downloads:</b> '; // e.g. (see above comment)
     $course_dls = oer_analytics_counter_construct_content($sumarray_dls); // OER download add
     //return array("<b>Total Course Views:</b> {$course_views}", "<b>Total Bulk Downloads:</b> {$course_dls}"); // OER download add
-    return array($course_views, $course_dls);
+    return array(number_format($course_views), number_format($course_dls));
   } else {
   	//return array("<b>Total Course Views:</b> {$course_views}"); // OER download add (sort of)
-    return array($course_views);
+    return array(number_format($course_views));
   }
   // js removed for now; unnecessary 
   // other code held in function for future development use
@@ -648,7 +651,7 @@ function _oer_analytics_block($nid) {
 			// array_push($full_stats, "<b>Aggregate Youtube Views:</b> {$arr[0]}");
 			// //array_push($full_stats, "<b>Aggregate Youtube Comments:</b> {$arr[1]}");
 			// array_push($full_stats, "<b>Youtube Vids in Course:</b> {$num_rows}");
-      array_push($full_stats, $arr[0]);
+      array_push($full_stats, number_format($arr[0]));
       array_push($full_stats, $num_rows);
 		}
 
@@ -689,11 +692,14 @@ function _oer_analytics_block($nid) {
 EOD
 );
 		} else if (!empty($ga_stats)) {
+
+      if (!is_null($ga_stats[1])) {
+
       return array( 
         'subject' => t('Course Analytics'),
         //'content' => theme_item_list($ga_stats)
         'content' => <<<EOD
-<a href="" id="oer-analytics-button" onclick="hide(oer-analytics-button)">
+<a id="oer-analytics-button" href="" onmouseover="this.display = 'none'">
 <div class="oer-analytics-button" id="oer-analytics-button">
   <div class="oer-analytics" id="oer-analytics-visits">
     <span id="visits-num">
@@ -711,6 +717,26 @@ EOD
 </a>
 EOD
       );
+  } else {
+    return array( 
+        'subject' => t('Course Analytics'),
+        //'content' => theme_item_list($ga_stats)
+        'content' => <<<EOD
+<a id="oer-analytics-button" href="" onmouseover="this.display = 'none'">
+<div class="oer-analytics-button" id="oer-analytics-button">
+  <div class="oer-analytics" id="oer-analytics-visits">
+    <span id="visits-num">
+      <span id="googleanalytics-oer">
+        <p class="statsnums" id="visits-num">{$ga_stats[0]}</p>
+        <p class="oer-analytics-small-descr">total course visits</p>
+      </span>
+    </span>
+  </div>
+</div>
+EOD
+);
+  }
+
     } else {
 			return;
 		}

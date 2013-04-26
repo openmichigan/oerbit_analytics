@@ -1,7 +1,7 @@
 
 
-.oer-analytics-button {
-    width: 132px;
+div.oer-analytics-button {
+    max-width: 152px;
     max-height: 350px;
     position: fixed;
     right:0;
@@ -20,6 +20,11 @@
     /*-moz-border-radius: 5px; */
     border-radius: 5px;
     text-shadow: 0 1px 0 #666666;
+    display: inline;
+}
+
+div.oer-analytics-button:active {
+    display: none;
 }
 
 p.statsnums {
