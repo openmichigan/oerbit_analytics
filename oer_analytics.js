@@ -13,20 +13,33 @@ if (Drupal.jsEnabled) {
 }
 
 Drupal.behaviors.oer_analyticsBehavior = function () {
-	var showing = true;
+	// var showing = true;
 
-	$("#oer-analytics-button").hover(function (){
+	// $("#oer-analytics-button").hover(function (){
+	// 	$("#oer-analytics-button").fadeOut();
+	// 	$("#overall-show").fadeIn();
+	// 	showing = false;
+	// });
+
+	// if (!showing) {
+	// 	$('#overall-show').hover(function (){
+	// 		$('#oer-analytics-button').fadeIn();
+	// 		$('#overall-show').fadeOut();
+	// 	});
+	// }
+	$("#hovershow").hide();
+
+	$("#hiddenq").click(function () {
 		$("#oer-analytics-button").fadeOut();
-		$("#overall-show").fadeIn();
-		showing = false;
+		$("#hovershow").css('display','block');
 	});
 
-	if (!showing) {
-		$('#overall-show').hover(function (){
-			$('#oer-analytics-button').fadeIn();
-			$('#overall-show').fadeOut();
-		});
-	}
+	$("#hovershow").click(function () {
+		$("#oer-analytics-button").fadeIn();
+		$("#hovershow").css('display', 'none');
+	})
+
+	//$("#hovershow").
 
 	// $("#overall-show").hover(function(){
 	// 	$('#oer-analytics-button').show();

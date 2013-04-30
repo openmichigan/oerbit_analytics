@@ -663,7 +663,9 @@ function _oer_analytics_block($nid) {
 				//'content' => theme_item_list(array_merge($ga_stats, $full_stats))
 
         'content' => <<<EOD
-<div class="oer-analytics-button">
+<div class="oer-analytics-button" id="oer-analytics-button">
+
+<button id="hiddenq" type="button">hide</button>
   <div class="oer-analytics" id="oer-analytics-visits">
     <span id="visits-num">
       <span id="googleanalytics-oer">
@@ -687,6 +689,7 @@ function _oer_analytics_block($nid) {
   </div>
 
 </div>
+<button id="hovershow" type="button">show analytics</button>
 EOD
 );
 		} else if (!empty($ga_stats)) {
@@ -697,10 +700,10 @@ EOD
         'subject' => t('Course Analytics'),
         //'content' => theme_item_list($ga_stats)
         'content' => <<<EOD
-<div id="overall-show">
-  <p class="oer-analytics-small-descr">show analytics</p>
-</div>
 <div class="oer-analytics-button" id="oer-analytics-button">
+
+<button id="hiddenq" type="button">hide</button>
+
   <div class="oer-analytics" id="oer-analytics-visits">
     <span id="visits-num">
       <span id="googleanalytics-oer">
@@ -715,6 +718,7 @@ EOD
   </div>
 </div>
 
+<button id="hovershow" type="button">show analytics</button>
 EOD
       );
   } else {
@@ -723,6 +727,8 @@ EOD
         //'content' => theme_item_list($ga_stats)
         'content' => <<<EOD
 <div class="oer-analytics-button" id="oer-analytics-button">
+
+<button id="hiddenq" type="button">hide</button>
   <div class="oer-analytics" id="oer-analytics-visits">
     <span id="visits-num">
       <span id="googleanalytics-oer">
@@ -732,6 +738,7 @@ EOD
     </span>
   </div>
 </div>
+<button id="hovershow" type="button">show analytics</button>
 EOD
 );
   }

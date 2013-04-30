@@ -26,13 +26,13 @@ div.oer-analytics-button {
     display: inline;
 }
 
-div.overall-show {
+/*
+div.toshow {
     max-width: 100px;
     max-height: 50px;
     position: fixed;
-    back
     right: 0;
-    top: 10%;
+    top: 60%;
     display: block;
     font-family: helvetica, arial, sans-serif;
     font-weight: lighter;
@@ -41,8 +41,21 @@ div.overall-show {
     -moz-border-radius: 5px;
     border-radius: 5px;
     display: inline;
-    /*background-color: rgb(249,250,252);*/
+    background-color: rgb(249,250,252);
     background-color: #25E01B;
+}
+*/
+
+#hovershow {
+    /*background-color: #25E01B;*/
+    background-color: rgb(249,250,252);
+    font-family: helvetica, arial, sans-serif;
+    font-weight: lighter;
+    padding: 5px 5px;
+    text-align: left;
+    position: fixed; /* hmm */
+    right: 0;
+    top: 80%;
 }
 
 div.oer-analytics-button:active {
