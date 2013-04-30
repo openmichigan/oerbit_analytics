@@ -1,9 +1,5 @@
 
 
-//alert("hello, testing js!");
-
-//alert("does this work now?");
-
 if (Drupal.jsEnabled) {
 	
 	document.documentElement.className = 'js';
