@@ -52,18 +52,15 @@ The arrows in the diagram, you'll notice, are labeled with numbers -- the approx
 
 ## TODOS and concerns
 
-* TODO: Make functionality more modularizable (e.g. easier to pick out different likely desired pieces of information in the Google Analytics section of the ```oer_analytics.module``` file without digging too much into the code)
+* TODO: Make functionality more modularizable (e.g. easier to pick out different likely desired pieces of information in the Google Analytics section of the ```oer_analytics.module``` file without digging too much into the code) -- G.A. code in particular will be refactored after first live release.
 
-* TODO: Improve performance. ```Cronplus``` will be used to update the metadata for YouTube videos daily (at approximately 3 am), but this still degrades performance at 3 am and with added functionality in future phases of the project, performance remains a top concern.
-Steps (1) and (2) in the **_process_** section are the current largest concerns with respect to performance, but this list may shrink/lengthen/change.
+* TODO: Improve performance and alter cron. Plan to use ```elysia_cron``` module to manage cron updates in particular for YT database storage and upates.
 
-* TODO (current): Database updates need correction.
+* TODO: Configure database updating concisely./Database updates need correction.
 
-* TODO (current): There may be one remaining bug in the YouTube metadata aggregation code causing some numbers to be incorrect -- working on this. (Previously noted bug is amended and OK now)
+* TODO: Further display decisions, increased user-friendliness for multiple uses
 
-* TODO: Update YouTube gathering to the v3 API (and potentially integrate fully with the Google Analytics API).
-
-* Stay tuned for potential course module integration or something totally different
+* TODO: Integration of JavaScript charts
 
 ## Licensing information
 
