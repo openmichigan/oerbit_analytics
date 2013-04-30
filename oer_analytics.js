@@ -13,20 +13,7 @@ if (Drupal.jsEnabled) {
 }
 
 Drupal.behaviors.oer_analyticsBehavior = function () {
-	// var showing = true;
-
-	// $("#oer-analytics-button").hover(function (){
-	// 	$("#oer-analytics-button").fadeOut();
-	// 	$("#overall-show").fadeIn();
-	// 	showing = false;
-	// });
-
-	// if (!showing) {
-	// 	$('#overall-show').hover(function (){
-	// 		$('#oer-analytics-button').fadeIn();
-	// 		$('#overall-show').fadeOut();
-	// 	});
-	// }
+	
 	$("#hovershow").hide();
 
 	$("#hiddenq").click(function () {
@@ -39,27 +26,7 @@ Drupal.behaviors.oer_analyticsBehavior = function () {
 		$("#hovershow").css('display', 'none');
 	})
 
-	//$("#hovershow").
-
-	// $("#overall-show").hover(function(){
-	// 	$('#oer-analytics-button').show();
-	// 	//$('#overall-show').hide();
-	// });
 };
 
-// 	var div_clicked = false;
-
-// 	$('#oer-analytics-button').click(function () {
-// 		div_clicked = true;
-// 	});
-
-// 	$(document).click(function () {
-// 		if (!div_clicked) {
-// 			$('#oer-analytics-button').hide);
-// 		}
-// 		div_clicked = false;
-// 	});
-
-// }
 
 
