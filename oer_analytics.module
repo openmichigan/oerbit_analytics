@@ -438,14 +438,8 @@ function oer_analytics_counter_get_sum_per_path($path) {
 function oer_analytics_counter_display($path='') {
 
   if ($path == '') {
-    $path = oer_analytics_counter_get_searched_path(); // for materials this is a PROBLEM
-    // TIME TO WHITEBOARD
-    // if (strpos($path, "/materials") != FALSE) { // TODO fix fragile -- ifs really unnec
-    //   $path = str_replace("/materials", "", $path);
-    // } else if (strpos($path, "/highlights") != FALSE) {
-    //   $path = str_replace("/highlights", "", $path);
-    // } else if (strpos($path, "/sessions")){
-    //   $path = str_replace("/sessions", "", $path);
+    $path = oer_analytics_counter_get_searched_path(); 
+    $path = str_replace("/sessions", "", $path);
     // }
     $path = str_replace("/materials", "", $path);
     $path = str_replace("/highlights", "", $path);
@@ -674,11 +668,11 @@ function _oer_analytics_block($nid) {
     <span id="visits-num">
       <span id="googleanalytics-oer">
         <p class="statsnums" id="visits-num">{$ga_stats[0]}</p>
-        <p class="oer-analytics-small-descr">total course visits</p>
+        <p class="oer-analytics-small-descr">course visits</p>
       </span>
       <span id="googleanalytics-dls">
         <p class="statsnums" id="dls-num">{$ga_stats[1]}</p>
-        <p class="oer-analytics-small-descr">bulk downloads</p>
+        <p class="oer-analytics-small-descr">downloads</p>
       </span>
     </span>
   </div>
@@ -687,8 +681,7 @@ function _oer_analytics_block($nid) {
     <span id="visits-num">
       <span id="yt-analytics">
         <p class="statsnums" id="yt-views">{$full_stats[0]}</p>
-        <p class="oer-analytics-small-descr">views on <a href="http://www.youtube.com/user/openmichigan" target=_blank>YouTube</a></p>
-        <p class="oer-analytics-small-descr">of all {$full_stats[1]} <br> vids in course</p>
+        <p class="oer-analytics-small-descr"><a href="http://www.youtube.com/user/openmichigan" target=_blank>YouTube</a> views</p>
       </span>
     </span>
   </div>
@@ -704,13 +697,15 @@ EOD
         'subject' => t('Course Analytics'),
         //'content' => theme_item_list($ga_stats)
         'content' => <<<EOD
-<a id="oer-analytics-button" href="" onmouseover="this.display = 'none'">
+<div id="overall-show">
+  <p class="oer-analytics-small-descr">show analytics</p>
+</div>
 <div class="oer-analytics-button" id="oer-analytics-button">
   <div class="oer-analytics" id="oer-analytics-visits">
     <span id="visits-num">
       <span id="googleanalytics-oer">
         <p class="statsnums" id="visits-num">{$ga_stats[0]}</p>
-        <p class="oer-analytics-small-descr">total course visits</p>
+        <p class="oer-analytics-small-descr">course visits</p>
       </span>
       <span id="googleanalytics-dls">
         <p class="statsnums" id="dls-num">{$ga_stats[1]}</p>
@@ -719,7 +714,7 @@ EOD
     </span>
   </div>
 </div>
-</a>
+
 EOD
       );
   } else {
@@ -727,13 +722,12 @@ EOD
         'subject' => t('Course Analytics'),
         //'content' => theme_item_list($ga_stats)
         'content' => <<<EOD
-<a id="oer-analytics-button" href="" onmouseover="this.display = 'none'">
 <div class="oer-analytics-button" id="oer-analytics-button">
   <div class="oer-analytics" id="oer-analytics-visits">
     <span id="visits-num">
       <span id="googleanalytics-oer">
         <p class="statsnums" id="visits-num">{$ga_stats[0]}</p>
-        <p class="oer-analytics-small-descr">total course visits</p>
+        <p class="oer-analytics-small-descr">course visits</p>
       </span>
     </span>
   </div>
