@@ -531,15 +531,25 @@ function get_video_data($videoid) { // NEW
 
 
 /**
-* Implements hook_cron().
+* Implements Cron (parallel) via elysia_cron module.
 */
+// potential questions in comments
 
-// TODO: cron staging
+function oer_analytics_cronapi() { // $op and $job = NULL params -- ?? necessary, if so what here?
+  $items['oer_analytics_cron'] = array( // ok to name channel (?) this?
+    'description' => 'Perform updates/new population of db tables for oer_analytics module.',
+    'rule' => '0 3 * *', // every day at 3 am
+    'callback' => '_oer_analytics_prepcron',
+    'arguments' => array('all'), // ?
+  );
+
+  return $items;
+}
 
 
 
-function oer_analytics_cron() { // temporarily for testing, return to above commented line later 
-
+// Would-be implementing hook_cron(); populates and updates database tables for analytics module.
+function _oer_analytics_prepcron() { 
   
 	$vid_db_info = db_query('SELECT field_course_reference_nid, field_video_value FROM {content_field_video} INNER JOIN {content_field_course_reference} WHERE content_field_video.nid = content_field_course_reference.nid AND content_field_video.field_video_provider="youtube" GROUP BY content_field_video.field_video_value'); 
 
