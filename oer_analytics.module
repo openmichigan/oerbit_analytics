@@ -695,7 +695,7 @@ function _oer_analytics_block($nid) {
         'content' => <<<EOD
 <div class="oer-analytics-button" id="oer-analytics-button">
 
-<button id="hiddenq" type="button">hide</button>
+<button id="hiddenq" type="button">x</button>
   <div class="oer-analytics" id="oer-analytics-visits">
     <span id="visits-num">
       <span id="googleanalytics-oer">
@@ -719,7 +719,7 @@ function _oer_analytics_block($nid) {
   </div>
 
 </div>
-<button id="hovershow" type="button">show analytics</button>
+<button class="hovershow" id="hovershow" type="button"></button>
 EOD
 );
 		} else if (!empty($ga_stats)) {
@@ -732,7 +732,7 @@ EOD
         'content' => <<<EOD
 <div class="oer-analytics-button" id="oer-analytics-button">
 
-<button id="hiddenq" type="button">hide</button>
+<button id="hiddenq" type="button">x</button>
 
   <div class="oer-analytics" id="oer-analytics-visits">
     <span id="visits-num">
@@ -748,7 +748,7 @@ EOD
   </div>
 </div>
 
-<button id="hovershow" type="button">show analytics</button>
+<button class="hovershow" id="hovershow" type="button"></button>
 EOD
       );
   } else {
@@ -758,7 +758,7 @@ EOD
         'content' => <<<EOD
 <div class="oer-analytics-button" id="oer-analytics-button">
 
-<button id="hiddenq" type="button">hide</button>
+<button id="hiddenq" type="button">x</button>
   <div class="oer-analytics" id="oer-analytics-visits">
     <span id="visits-num">
       <span id="googleanalytics-oer">
@@ -768,7 +768,7 @@ EOD
     </span>
   </div>
 </div>
-<button id="hovershow" type="button">show analytics</button>
+<button class="hovershow" id="hovershow" type="button"></button>
 EOD
 );
   }

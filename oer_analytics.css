@@ -1,4 +1,7 @@
 
+
+
+
 div.oer-analytics-button {
     max-width: 152px;
     max-height: 350px;
@@ -46,16 +49,64 @@ div.toshow {
 }
 */
 
-#hovershow {
+.hovershow {
     /*background-color: #25E01B;*/
-    background-color: rgb(249,250,252);
+    /*background-color: rgb(249,250,252);
     font-family: helvetica, arial, sans-serif;
     font-weight: lighter;
     padding: 5px 5px;
     text-align: left;
-    position: fixed; /* hmm */
+    position: fixed;
     right: 0;
     top: 80%;
+    */
+
+    width: 100%;
+    display: block;
+    font-family: helvetica, arial, sans-serif;
+    font-size: 21px;
+    font-weight: 100;
+    padding: 0 0;
+    text-align: center;
+    margin: 30px 0 0;
+}
+
+
+#hovershow {
+    background: url(http://open.umich.edu/sites/default/files/images/noun_project_4503.png), url(http://open.umich.edu/sites/default/files/images/extra-gradient.png);
+    background-color: #7F1622, #7F1622;
+    background-repeat: no-repeat, repeat-x;
+    background-attachment: scroll;
+    background-size: 40px 40px, 60px 60px;
+    background-position: center, 0 0;
+    border: 2px solid #EEE;
+    -moz-border-radius: 5px 0 0 5px;
+    border-radius: 5px 0 0 5px;
+    position: fixed;
+    z-index: 100000;
+    top: 10%;
+    width: 60px;
+    height: 60px;
+    right: -2px;
+    left: auto;
+    margin-left: auto;
+    margin-right: 0;
+    overflow: hidden;
+    text-shadow: 0 1px 0 #666;
+}
+
+#hovershow:hover {
+    background-position: center, 0 -8px;
+    background-size: 40px 40px, 60px 68px;
+    color: #FFF;
+    text-shadow: 0 1px 0 #333;
+    border: 2px solid #FFF;
+}
+
+#hovershow:active {
+    background-image: url(http://open.umich.edu/sites/default/files/images/noun_project_4503.png);
+    background-color: #7F1622;
+    background-size: 40px 40px;
 }
 
 div.oer-analytics-button:active {
