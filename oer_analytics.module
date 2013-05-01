@@ -592,7 +592,7 @@ function oer_analytics_cron() { // temporarily for testing, return to above comm
   } else { // if it's not an update, populate the database (presumably !is_array in that case..?)
 
     foreach($vids_courses as $vid => $cnid) {
-      
+
       if (strpos($vid_id, "PLAYLIST") === FALSE) {
         $data_views = get_video_data($vid_id);
         $inp_arr = array('videoid'=>$vid, 'course_nid'=>$cnid, 'totalviews'=>$data_views);
@@ -621,72 +621,8 @@ function oer_analytics_cron() { // temporarily for testing, return to above comm
 
   }
 
-
-	// $vid_items = array();
-	// while ($row = db_fetch_object($vid_db_info)) {
-	// 	$v_id = $row->field_video_value;
-	// 	$course_nid = $row->field_course_reference_nid;
-	// 	if (strpos($v_id, "PLAYLIST") === FALSE) {
- //      $a = get_video_data($v_id);
- //      //drupal_set_message($a);
-	// 		$vid_items[$v_id] = array($course_nid, $a);
- //      //drupal_set_message((st($vid_items[$v_id][1])));
-	// 	}
-	// }
-
- //  foreach($vid_items as $vid => $cnidarr) {
- //    $insert_arr = array('videoid'=>$vid, 'course_nid'=>$cnid[0], 'totalviews'=>$cnid[1]);
- //    db_write_record('oer_analytics_vids',$insert_arr,'videoid');
- //  }
-
-
-
-	// $yt_info = array(); 
- //  foreach($vid_items as $vid_id => $otherinfos) {
- //    if (array_key_exists($otherinfos[0], $yt_info)) {
- //      $yt_info[$otherinfos[0]]["views"] += (int) $otherinfos[1];
- //    } else {
- //      $yt_info[$otherinfos[0]]["views"] = (int) $otherinfos[1];;
- //    }
- //  }
-
-  // $now_vids = db_query("SELECT course_nid, totalviews FROM {oer_analytics_vids}"); // TODO secure
-  // $yt_info = array();
-  // while ($rw = db_fetch_object($now_vids)) {
-  //   //$video_id = $rw->videoid;
-  //   $coursenid = $rw->course_nid;
-  //   $views = $rw->totalviews;
-  //   // this one-element non-array is fragile for current setup TODO
-  //   if (array_key_exists($coursenid, $yt_info)) {
-  //     $yt_info[$coursenid] += (int) $views;
-  //   } else {
-  //     $yt_info[$coursenid] = (int) $views;
-  //   }
-
-
-  // }
-
-  // foreach($yt_info as $cnid => $yt_viewnum) {
-  //   $inp_arr = array('course_nid'=>$cnid, 'totalviews'=>$yt_viewnum);
-  //   db_write_record('oer_analytics_youtube', $inp_arr, 'course_nid'); 
-  // }
-
-
-
-
-  // foreach($yt_info as $cref=>$vals) {
-  //   $input_arr = array()
-  //   // $input_arr = array('course_nid'=$cref, 'totalviews'=>$val);
-  //   // db_write_record('oer_analytics_youtube', $input_arr, 'course_nid');
-  // }
-
-
 	
-}
-
-
-
-
+} // end cron block
 
 
 /**
