@@ -550,7 +550,7 @@ function oer_analytics_cron() { // temporarily for testing, return to above comm
     $vid = $row->field_video_value;
     $cnid = $row->field_course_reference_nid;
     array_push($all_vids_arr, $vid);
-    array_push($vids_courses, $vid => $cnid); // presumably will work
+    $vids_courses[$vid] = $cnid; // presumably will work
   }
 
   $currvids = db_query('SELECT videoid FROM {oer_analytics_vids}');
@@ -566,7 +566,7 @@ function oer_analytics_cron() { // temporarily for testing, return to above comm
       if (strpos($vid_id, "PLAYLIST") === FALSE) {
         $data_views = get_video_data($vid_id);
         $inp_arr = array('videoid'=>$vid_id, 'course_nid'=>$vids_courses[$vid_id], 'totalviews'=>$data_views);
-        db_write_record('oer_analytics_vids', $inp_arr, 'videoid');
+        drupal_write_record('oer_analytics_vids', $inp_arr, 'videoid');
       }
     }
 
@@ -586,7 +586,7 @@ function oer_analytics_cron() { // temporarily for testing, return to above comm
 
     foreach($yt_info as $cnid => $yt_viewnum) {
       $inp_arr = array('course_nid'=>$cnid, 'totalviews'=>$yt_viewnum);
-      db_write_record('oer_analytics_youtube', $inp_arr, 'course_nid'); 
+      drupal_write_record('oer_analytics_youtube', $inp_arr, 'course_nid'); 
     }
 
   } else { // if it's not an update, populate the database (presumably !is_array in that case..?)
@@ -596,7 +596,7 @@ function oer_analytics_cron() { // temporarily for testing, return to above comm
       if (strpos($vid_id, "PLAYLIST") === FALSE) {
         $data_views = get_video_data($vid_id);
         $inp_arr = array('videoid'=>$vid, 'course_nid'=>$cnid, 'totalviews'=>$data_views);
-        db_write_record('oer_analytics_vids', $inp_arr);
+        drupal_write_record('oer_analytics_vids', $inp_arr);
       }
     }
 
@@ -616,7 +616,7 @@ function oer_analytics_cron() { // temporarily for testing, return to above comm
 
     foreach($yt_info as $cnid => $yt_viewnum) {
       $inp_arr = array('course_nid'=>$cnid, 'totalviews'=>$yt_viewnum);
-      db_write_record('oer_analytics_youtube', $inp_arr); 
+      drupal_write_record('oer_analytics_youtube', $inp_arr); 
     }
 
   }
