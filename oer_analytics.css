@@ -26,7 +26,7 @@ div.oer-analytics-button {
     -moz-border-radius: 5px;
     border-radius: 5px;
     /*text-shadow: 0 .4px 0 #666666;*/
-    display: inline;
+    /*display: inline;*/
 }
 
 /*
@@ -109,9 +109,11 @@ div.toshow {
     background-size: 40px 40px;
 }
 
+/*
 div.oer-analytics-button:active {
     display: none;
 }
+*/
 
 p.statsnums {
     font-size:34px;
@@ -131,6 +133,13 @@ p.oer-analytics-small-descr {
     line-height: .5em;
 }
 
+#hiddenq {
+    padding: 0;
+    size: 22px 22px;
+    font-size: 9px;
+    line-height: .4em;
+    text-align:center;
+}
 
 /*a#extra_button {
     text-decoration: none;
@@ -148,12 +157,12 @@ p.oer-analytics-small-descr {
 }*/
 
 #oer-analytics-visits {
-    /* anything needed ?? to sep from yt? */
+    /* anything needed ? */
 }
 
 
 span#visits-num {
-    /* is anything needed here */
+    /* anything needed */
 }
 
 
