@@ -603,7 +603,7 @@ function _oer_analytics_prepcron() {
     }
 
   } else { // if it's not an update, populate the database (presumably !is_array in that case..?)
-
+    drupal_set_message("got to the else");
     foreach($all_vids_arr as $vid_id) {
       if (strpos($vid_id, "PLAYLIST") === FALSE) {
         $data_views = get_video_data($vid_id);
