@@ -1,0 +1,6 @@
+; $Id$
+name = Open.Michigan Analytics
+description = Customizes analytics gathering and display for the OpenMichigan Initiative OERbit install.
+core = 6.x
+package = Open Michigan
+dependencies[] = Elysia_Cron, Google Analytics API, Google Analytics Counter 

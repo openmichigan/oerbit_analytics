@@ -1,0 +1,782 @@
+<?php
+// $Id$
+
+// TODO simplify nonmodifications
+
+/*
+ * All original work,
+ * COPYRIGHT 2013
+ *
+ * The Regents of the University of Michigan
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * any later version.
+ *
+ * You may not use the name of The University of Michigan in any
+ * advertising or publicity pertaining to the use of distribution of this software
+ * without specific, written prior authorization. If the above copyright notice
+ * or any other identification of the University of Michigan is included in any
+ * copy of any portion of this software, then the disclaimer below must
+ * also be included.
+ *
+ * THIS SOFTWARE IS PROVIDED AS IS, WITHOUT REPRESENTATION
+ * FROM THE UNIVERSITY OF MICHIGAN AS TO ITS FITNESS FOR ANY
+ * PURPOSE, AND WITHOUT WARRANTY BY THE UNIVERSITY OF
+ * MICHIGAN OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING
+ * WITHOUT LIMITATION THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
+ * REGENTS OF THE UNIVERSITY OF MICHIGAN SHALL NOT BE LIABLE
+ * FOR ANY DAMAGES, INCLUDING SPECIAL, INDIRECT, INCIDENTAL, OR
+ * CONSEQUENTIAL DAMAGES, WITH RESPECT TO ANY CLAIM ARISING
+ * OUT OF OR IN CONNECTION WITH THE USE OF THE SOFTWARE, EVEN
+ * IF IT HAS BEEN OR IS HEREAFTER ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGES.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * ATTRIBUTION INFORMATION
+ *
+ * Portions of this module file are excerpted from the 
+ * Google Analytics Counter Drupal module (http://drupal.org/project/google_analytics
+_counter), 
+ * authored by @Vacilando (http://drupal.org/user/45996).
+ *
+ * All code from the Google Analytics Counter module is licensed under the 
+ * GNU General Public License (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html) 
+ * and the reused and modified code is distributed here with those requirements; 
+ * it is NOT subject to copyright by the Regents of the University of Michigan.
+ * Some modifications to the source code of the Google Analytics Counter module were made, 
+ * and included in this OERbit Analytics module, by @jczetta, 2013.03.29 - 2013.04.02.
+*/
+
+// TODO should be here? -- admin form
+/**
+* Form builder. Configure oer_analytics module.
+* 
+* @see system_settings_form()
+*/
+
+function oer_analytics_admin() {
+  $form = array();
+  $form['oer_analytics_gac_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('YouTube account application key'),
+    '#size' => 128,
+    '#maxlength' => 1024,
+    '#default_value' => variable_get('oer_analytics_gac_key', NULL),
+    '#description' => t('The secret key your YouTube Data API requires.'),
+    '#required' => TRUE,
+  );
+
+  $form['submit'] = array(
+  '#type' => 'submit',
+  '#value' => t('Save'),
+  );
+  return system_settings_form($form);
+}
+
+
+// hook_menu -- will document properly shortly TODO
+function oer_analytics_menu() {
+
+  $items = array();
+
+  $items['admin/settings/oer-analytics'] = array(
+    'title' => 'Open.Michigan Analytics module settings',
+    'description' => 'Description of your analytics settings page',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('oer_analytics_admin'),
+    'access arguments' => array('administer oeranalytics settings'),
+    'type' => MENU_NORMAL_ITEM,
+   );
+
+  return $items;
+}
+
+
+/**
+* @file
+* Implements functions to grab media analytics for OERbit site
+* Displays analytics on appropriate course or resource pages.
+*/
+
+/** Helper Functions **/
+
+function today() {
+	$today = getdate();
+	$mon = $today["mon"];
+	$day = $today["mday"];
+	$yr = $today["year"];
+	if ($mon < 10) {
+		$mon = "0".$mon;
+	}
+	if ($day < 10) {
+		$day = "0".$day;
+	}
+	$curr_date = $yr."-".$mon."-".$day;
+	return $curr_date;
+} 
+
+// implements hook_init(), docs later
+function oer_analytics_init(){
+  drupal_add_css(drupal_get_path('module', 'oer_analytics') .'/oer_analytics.css');
+
+  drupal_add_js(drupal_get_path('module', 'oer_analytics') .'/oer_analytics.js');
+}
+
+/* Google Analytics Counter pieces */
+
+// TODO: this constructing content, how much is it really doing?
+function oer_analytics_counter_construct_content($sumarray) {
+
+  $result = '';
+
+  $sum_of_pageviews = '';
+  #$sum_of_pageviews .= '<span style="font-size:large;"';
+  #$sum_of_pageviews .= ' title="';
+  // If debugger is on, and if the user has admin rights for Google Analytics Counter.
+  if (user_access('administer google analytics counter')) {
+    $debuggeron = oer_analytics_COUNTER_DEBUG;
+    if ($debuggeron == 1) {
+      $titlemsg = $sumarray[3];
+    }
+  }
+  #$sum_of_pageviews .= $titlemsg;
+  #$sum_of_pageviews .= '">';
+
+  $sum_of_pageviews .= $sumarray[0];
+  #$sum_of_pageviews .= '</span>';
+  //$countdays = $sumarray[1];
+  //$cachedago = time()-$sumarray[2];
+
+  if ($sumarray[0] == 0 AND $debuggeron <> 1) {
+    // If $sumarray[2] is zero, it means nothing was fetched (cache expired but there was concurrency and new data could not be retrieved). We will return nothing -- until new value can be retrieved.
+    //$result = '***'.$countdays.'***';
+    $result = '';
+  } else {
+    $result .= $sum_of_pageviews;
+
+    // If debugger is on, and if the user has admin rights for Google Analytics Counter.
+    if (user_access('administer google analytics counter')) {
+      if ($debuggeron == 1) {
+        $result .= '<br/><font color="teal">' . $titlemsg . '</font>';
+      }
+    }
+  }
+
+  return $result;
+}
+
+// info for caching, TODO fix properly
+$key = 'oer_analytics_counter_' . $path;
+
+// Cache expiration logic is not governed by Drupal's cache_set. Cache life is set to much longer time than what the desired refresh time is so that in case of not receiving fresh value (for whatever reason) there is at least an approximate value available for display.
+// First let's find out when this cache entry was created.
+$cache = cache_get($key);
+$cachecreated = @$cache->created;
+$needfreshvalue = FALSE;
+if ((time() - $cachecreated) > $cache_period) {
+  $needfreshvalue = TRUE;
+}
+
+function oer_analytics_counter_gac_get_count() {
+
+  $path = oer_analytics_counter_get_searched_path();
+  // This gives the AJAX call URI, e.g. /oer_analytics_counter/gac_get_count/node/264455. We need to get the calling page's URI.
+  $path = explode("gac_get_count", $path);
+  $path = $path[1];
+  // We have something like /node/264455. Remove the leading slash.
+  $path = trim(substr($path, 1));
+  $dls_path = "{$path}/zip_download";
+  $sumarray = oer_analytics_counter_get_sum_per_path($path);
+  $sumarray_dls = oer_analytics_counter_get_sum_per_path($dls_path);
+
+  // Return Data -- TODO ??
+  $json = array();
+  if (!empty($sumarray)) {
+    $json['#oer-analytics-counter-' . md5($path)] = oer_analytics_counter_construct_content($sumarray); # . ' (AJAX)';
+    //$json['#google-analytics-counter'] = oer_analytics_counter_construct_content($sumarray);
+    $json['#oer-analytics-counter-' . md5($dls_path)] = oer_analytics_counter_construct_content($sumarray_dls); # . ' (AJAX)';
+  } else {
+    $json['#oer-analytics-counter-' . md5($path)] = NULL;
+    //$json['#google-analytics-counter'] = NULL;
+  }
+
+  // Send JSON Back
+  drupal_json($json);
+  exit;
+  #return mt_rand(0,1000000);
+} // needed? perhaps useful
+
+function oer_analytics_counter_get_searched_path() {
+  $path = check_plain(implode('/', arg()));
+  return $path;
+} // TODO check integration (fine for now)
+
+
+/*
+ * Return a list of paths that are aliased with the given path (including the given path).
+ */
+
+//  TODO is there an occurrence where this is needed?
+function _oer_analytics_counter_path_aliases($node_path = NULL) {
+  // Default path is the current path.
+  if ($node_path == NULL) {
+    $node_path = check_plain($_GET['q']);
+  }
+
+  // Get the normal node path if it is a node.
+  $node_path = drupal_get_normal_path($node_path);
+
+  // Grab all aliases.
+  $aliases = array($node_path);
+  $result = db_query('SELECT * FROM {url_alias} WHERE src = "%s"', $node_path); // TODO securify (doublequoted due to PHP error appearing - ?)
+  while ($row = db_fetch_array($result)) {
+    $aliases[] = $row['dst'];
+  }
+
+  // If this is the front page, add the base path too, and index.php for good measure.
+  // There may be other ways that the user is accessing the front page but we can't
+  // account for them all.
+  if ($node_path == drupal_get_normal_path(variable_get('site_frontpage', 'node'))) {
+    $aliases[] = '';
+    $aliases[] = 'index.php';
+  }
+
+  return $aliases;
+}
+
+function _oer_analytics_counter_path_filter($node_path = NULL) {
+  $aliases = _oer_analytics_counter_path_aliases($node_path);
+
+  // Regular expressions may have max 128 characters -- see http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDataFeed.html#filters
+  $filters = array();
+  foreach($aliases as $alias){
+    $filters[] = "ga:pagePath=~^/".$alias."([?#].*)?$";
+  }
+  return $filters;
+}
+
+/*
+ * Function to collect together data for different aliases.
+ */
+// TODO: again, is this necessary for our case?
+function _oer_analytics_counter_path_report($request, $path = NULL, $group_by = 'date') {
+  $data = array();
+  if ($path == 'ga_api_all_paths') {
+    $cachehere = array(
+        'cid' => 'oer_analytics_counter_all',
+        'expire' => google_analytics_reports_cache_time(), // TODO?
+        'refresh' => FALSE,
+    );
+    $new_data = oer_analytics_api_report_data($request, $cachehere);
+    $data = array_values((array) $new_data->results); // Make an array from inside the object.
+  } else {
+    foreach (_oer_analytics_counter_path_filter($path) as $filter) {
+      $request['filters'] = $filter;
+      $cachehere = array(
+          'cid' => 'oer_analytics_counter_' . md5(serialize($request)),
+          'expire' => google_analytics_reports_cache_time(), // TODO?
+          'refresh' => FALSE,
+      );
+      $new_data = google_analytics_api_report_data($request, $cachehere);
+      $new_data = array_values((array) $new_data->results); // Make an array from inside the object.
+      if (@$new_data) {
+        $data = array_merge($data, $new_data);
+      }
+    }
+  }
+
+  return $data;
+}
+
+// TODO fxn needs cleanup -- but how much?
+function oer_analytics_counter_get_sum_per_path($path) {
+
+  $timenow = time();
+
+  // Recognize special path 'all'
+  if ($path == 'all') {
+    // Let's use a less common path (this is for GA API)
+    // Requires GA API to adopt http://drupal.org/node/949986
+    $path = 'ga_api_all_paths'; // ?
+  }
+
+  // Watch out for http://code.google.com/apis/analytics/docs/gdata/gdataDeveloperGuide.html#quota
+  //$cache_period = 60*60*24;
+  $cache_period = round(variable_get('oer_analytics_counter_api_refresh', 6) * 3600);
+  //$cache_period = 90;
+  // Needing to stay under the Google Analytics API quota, let's count how many API retrievals were made in the last 24 hours. We should take into consideration that the quota is reset at midnight PST (while time() always returns UTC) - that could be looked into one day.
+  $dayquota = variable_get('oer_analytics_counter_dayquota', array(0, 0));
+  if ($timenow - $dayquota[0] >= 86400) {
+    // If last API request was more than a day ago, set monitoring time to now.
+    $dayquota[0] = $timenow;
+    $dayquota[1] = 0;
+    variable_set('oer_analytics_counter_dayquota', array($dayquota[0], 0));
+  }
+  $apirequestallowed = FALSE;
+  $maxdailyrequests = variable_get('oer_analytics_counter_api_dayquota', 10000); // see http://code.google.com/apis/analytics/docs/gdata/gdataDeveloperGuide.html#quota
+  if ($dayquota[1] <= $maxdailyrequests) {
+    $apirequestallowed = TRUE;
+  }
+
+  $key = 'oer_analytics_counter_' . $path;
+
+  // Cache expiration logic is not governed by Drupal's cache_set. Cache life is set to much longer time than what the desired refresh time is so that in case of not receiving fresh value (for whatever reason) there is at least an approximate value available for display.
+  // First let's find out when this cache entry was created.
+  $cache = cache_get($key);
+  $cachecreated = @$cache->created;
+  $needfreshvalue = FALSE;
+  if ((time() - $cachecreated) > $cache_period) {
+    $needfreshvalue = TRUE;
+  }
+
+  // Let's say we only allow retrieval from Google Analytics API once a second. We have to watch the quotas - see http://code.google.com/apis/analytics/docs/gdata/gdataDeveloperGuide.html#quota
+  $noconcurrency = FALSE;
+  // $concurrencymax = 1 means that the difference of current and recorded time must be at least 1 second, which is all right. Should not need to be higher, except maybe for testing.
+  $concurrencymax = variable_get('oer_analytics_counter_concurrency', 1);
+  if (($timenow - variable_get('oer_analytics_counter_latest', ($timenow - $concurrencymax)) >= $concurrencymax)) { // If the value is not yet there (first run!), use ($timenow-$concurrencymax) otherwise it will always detect concurrency!
+    $noconcurrency = TRUE;
+  }
+  $cachedvalue = '';
+  // Get from cache if not expired, if we don't need a fresh value, if there is concurrency, or if we exceeded Google's day quota.
+  if (($cache = cache_get($key) AND !empty($cache->data)) AND ((!$needfreshvalue OR !$noconcurrency OR !$apirequestallowed))) {
+    $result = $cache->data;
+    $cachedvalue = t(' This value was fetched from Drupal cache.');
+  } else {
+
+    // Let's set a time variable indicating no other script should retrieve Google Analytics data within some period.
+    variable_set('oer_analytics_counter_latest', $timenow);
+
+    // Let's increase the count of API requests in order to check for daily quota excess.
+    variable_set('oer_analytics_counter_dayquota', array($dayquota[0], ($dayquota[1] + 1)));
+
+    $request = array(
+        'dimensions' => array('ga:date'), // date would not be necessary for totals, but if we calculate stats of views per day, we need it
+        'metrics' => array('ga:pageviews'),
+            //'#start_date' => strtotime('2005-01-01'), // We want to retrieve all page views for this path. The earliest valid start-date for Google Analytics is 2005-01-01.
+    );
+    $rows = _oer_analytics_counter_path_report($request, $path);
+
+    $sum_of_pageviews = 0;
+    $countdays = 0;
+    $lookingforfirsthit = TRUE;
+    foreach ($rows as $date) {
+      // In case some error message appears, set zero and get out.
+      if (!is_numeric($date['pageviews'])) {
+        $sum_of_pageviews = 0;
+        break;
+      }
+      $sum_of_pageviews += $date['pageviews'];
+      // We need to count only days since when the first hit was registered
+      if ($date['pageviews'] <> 0 OR !$lookingforfirsthit) {
+        $countdays++;
+        $lookingforfirsthit = FALSE;
+      }
+    }
+
+    // Storing the count, days of counting, and also the absolute time of caching as well.
+    $result = array($sum_of_pageviews, $countdays, $timenow);
+    // Set the cache duration for much longer than the desired refresh period so as to assure approximate values are returned in case GA API limits are reached or if there are temporary problems with retrieving fresh values (that would set the displayed value to 0!)
+    $safe_margin_cache_time = $cache_period * 50;
+    cache_set($key, $result, 'cache', $safe_margin_cache_time);
+    // All right. Now - if it's desired and if it's a node page - update Drupal's own page view counter
+    if (variable_get('oer_analytics_counter_update_node_counter', 0) == 1) {
+
+      // Let's get the nid
+      $nid = FALSE;
+      $pathbits = explode('/', $path);
+      if (($pathbits[0] == 'node') && is_numeric($pathbits[1])) {
+        // Provided in format node/x
+        $nid = $pathbits[1];
+      } else {
+        $pathbits = drupal_lookup_path('source', $path);
+        $pathbits = explode('/', $pathbits);
+        if (($pathbits[0] == 'node') && is_numeric($pathbits[1])) {
+          // Provided as an alias
+          $nid = $pathbits[1];
+        }
+      }
+
+      if ($nid !== FALSE AND $sum_of_pageviews <> 0) {
+        // This is a node, so update the node's counters.
+        // We don't do anything with daycount here
+        db_query('UPDATE {node_counter} SET daycount = 0, totalcount = %d, timestamp = %d WHERE nid = %d', $sum_of_pageviews, time(), $nid);
+        // If we affected 0 rows, this is the first time viewing the node.
+        if (!db_affected_rows()) {
+          // We must create a new row to store counters for the new node.
+          db_query('INSERT INTO {node_counter} (nid, daycount, totalcount, timestamp) VALUES (%d, 0, %d, %d)', $nid, $sum_of_pageviews, time());
+        }
+      }
+    }
+  }
+
+  $lastfresh = $timenow - $result[2];
+  $extrapolated_for_current_cache_period = 'N/A';
+  // No reason to extrapolate if no data has been ever recorded (not a single date).
+  if ($result[1] <> 0) {
+    $views_per_second = $result[0] / ($result[1] * 60 * 60 * 24);
+    $extrapolated_for_current_cache_period = $lastfresh * $views_per_second;
+
+    // If extrapolation is desired, add it to the retrieved count.
+    $addextrapolated = 0;
+    if (variable_get('oer_analytics_counter_extrapolation', 1) == 1) {
+      $addextrapolated = round($extrapolated_for_current_cache_period);
+      $result[0] += $addextrapolated;
+    }
+  }
+  //// For debug information, see prior commit.
+   return $result;
+} // end oer_analytics_counter_get_sum_per_path
+
+// TODO: current display -- should this change to an interface with js anything? or something else?
+function oer_analytics_counter_display($path='') {
+
+  if ($path == '') {
+    $path = oer_analytics_counter_get_searched_path(); 
+    $path = str_replace("/sessions", "", $path);
+    // }
+    $path = str_replace("/materials", "", $path);
+    $path = str_replace("/highlights", "", $path);
+    $path = str_replace("/sessions", "", $path);
+    $dls_path = "{$path}/zip_download"; // OER download add
+  }
+
+  $refreshinseconds = variable_get('oer_analytics_counter_ajax_refresh', '');
+  if (!is_numeric($refreshinseconds))
+    $refreshinseconds = 0;
+  $msec = $refreshinseconds * 1000;
+
+  $sumarray = oer_analytics_counter_get_sum_per_path($path);
+  $sumarray_dls = oer_analytics_counter_get_sum_per_path($dls_path); // OER download add
+  $course_views = oer_analytics_counter_construct_content($sumarray);
+  // potential of adding to $block_content, but unlikely at curr. juncture (?)
+  if (oer_analytics_counter_construct_content($sumarray_dls) > 5) { // OER download add 
+    #$block_content .= '<br /><b>Total Materials Downloads:</b> '; // e.g. (see above comment)
+    $course_dls = oer_analytics_counter_construct_content($sumarray_dls); // OER download add
+    //return array("<b>Total Course Views:</b> {$course_views}", "<b>Total Bulk Downloads:</b> {$course_dls}"); // OER download add
+    return array(number_format($course_views), number_format($course_dls));
+  } else {
+  	//return array("<b>Total Course Views:</b> {$course_views}"); // OER download add (sort of)
+    return array(number_format($course_views));
+  }
+  // js removed for now; unnecessary 
+  // other code held in function for future development use
+}
+/* END Google Analytics specific functionality */
+
+
+/** functions to get YouTube info (including making API calls) **/
+// TODO refactoring
+
+/* get (correct, aliased) page path from an OERbit node number */
+function get_pagepath($nodenum) {
+	$from_db = db_query("SELECT dst FROM {url_alias} WHERE src LIKE 'node/{$nodenum}'");
+	while ($paths = db_fetch_object($from_db)) {
+		$p = $paths->dst;
+	}
+	return $p;
+} // TODO may need improved error checking
+
+
+/* get stats by video (given video id and stat desired) */
+// TODO: move over the updates to v3
+
+// function get_video_data($videoid, $param) // expects one of: 'views', 'comments', favs' as param, (in future incl: 'likes', or 'shares') -- comments, favs etc needs updating
+// {
+//   $JSON_first = drupal_http_request("https://gdata.youtube.com/feeds/api/videos/{$videoid}?v=2&alt=json");
+//   $JSON = $JSON_first->data;
+//   drupal_set_message((st($videoid)));
+//   //drupal_set_message((st($JSON)));
+//   $JSON_Data = json_decode($JSON, TRUE);
+//   $views = $JSON_Data->{'entry'}->{'yt$statistics'}->{'viewCount'};
+//   //$comments = $JSON_Data->{'entry'}->{'yt$statistics'}->{'countHint'};
+//   if ($param == 'views') {
+//     return (int) $views;
+//   }
+// }
+
+// TODO: BELOW -- v3 update -- problems with db and cron here, going back to old version for a bit
+// DO NOT push -- insecure because key -- form implemented to save it but not to access that form data TODO
+function get_video_data($videoid) { // NEW
+    //$api_key = "AIzaSyAv0ljLFFoCpJ0PEsdyJ6ycmqfP6ZOQj6E";
+
+    $api_key = variable_get('oer_analytics_gac_key', array()); // excitement?
+    $baseurl = "https://www.googleapis.com/youtube/v3/videos?id={$videoid}&key={$api_key}&part=snippet,statistics";
+
+    $JSON_first = drupal_http_request($baseurl);
+    $JSON = $JSON_first->data;
+    $json_data = json_decode($JSON);
+    // after requesting and json parsing and all that
+    // needs testing, of course
+    $tmp = $json_data->{'items'}[0]->{'statistics'};
+    //print $tmp;
+    $views = (int) $tmp->{'viewCount'};
+    $likes = (int) $tmp->{'likeCount'};
+    $dislikes = (int) $tmp->{'dislikeCount'};
+    $favs = (int) $tmp->{'favoriteCount'};
+    $comments = (int) $tmp->{'commentCount'};
+    $title = $json_data->{'items'}[0]->{'snippet'}->{'title'}; 
+    //return $title;
+    return $views; // can easily update to return and then store all other vals
+}
+
+
+/********* HOOK METHODS *********/
+
+
+/**
+* Implements Cron (parallel) via elysia_cron module.
+*/
+// potential questions in comments
+
+function oer_analytics_cronapi() { // $op and $job = NULL params -- ?? necessary, if so what here?
+  $items['oer_analytics_cron'] = array( // ok to name channel (?) this?
+    'description' => 'Perform updates/new population of db tables for oer_analytics module.',
+    'rule' => '0 3 * *', // every day at 3 am
+    'callback' => '_oer_analytics_prepcron',
+    'arguments' => array('all'), // ?
+  );
+
+  return $items;
+}
+
+
+
+// Would-be implementing hook_cron(); populates and updates database tables for analytics module.
+function _oer_analytics_prepcron() { 
+  
+	$vid_db_info = db_query('SELECT field_course_reference_nid, field_video_value FROM {content_field_video} INNER JOIN {content_field_course_reference} WHERE content_field_video.nid = content_field_course_reference.nid AND content_field_video.field_video_provider="youtube" GROUP BY content_field_video.field_video_value'); 
+
+  $all_vids_arr = array();
+  $curr_vids_arr = array();
+  $vids_courses = array();
+  while ($row = db_fetch_object($vid_db_info)) {
+    $vid = $row->field_video_value;
+    $cnid = $row->field_course_reference_nid;
+    array_push($all_vids_arr, $vid);
+    $vids_courses[$vid] = $cnid; // presumably will work
+  }
+
+  $currvids = db_query('SELECT videoid FROM {oer_analytics_vids}');
+  while ($r = db_fetch_object($currvids)) {
+    $vi = $r->videoid;
+    array_push($curr_vids_arr, $vi);
+  }
+
+  if (is_array($curr_vids_arr)) { // if this is an update of new videos only do the new ones
+
+    $new_vids = array_diff($all_vids_arr, $curr_vids_arr);
+    foreach($new_vids as $vid_id) {
+      if (strpos($vid_id, "PLAYLIST") === FALSE) {
+        $data_views = get_video_data($vid_id);
+        $inp_arr = array('videoid'=>$vid_id, 'course_nid'=>$vids_courses[$vid_id], 'totalviews'=>$data_views);
+        drupal_write_record('oer_analytics_vids', $inp_arr, 'videoid');
+      }
+    }
+
+    $now_vids = db_query("SELECT course_nid, totalviews FROM {oer_analytics_vids}"); // TODO secure
+    $yt_info = array();
+    while ($rw = db_fetch_object($now_vids)) {
+      //$video_id = $rw->videoid;
+      $coursenid = $rw->course_nid;
+      $views = $rw->totalviews;
+      // this one-element non-array is fragile for current setup TODO
+      if (array_key_exists($coursenid, $yt_info)) {
+        $yt_info[$coursenid] += (int) $views;
+      } else {
+        $yt_info[$coursenid] = (int) $views;
+      }
+    }
+
+    foreach($yt_info as $cnid => $yt_viewnum) {
+      $inp_arr = array('course_nid'=>$cnid, 'totalviews'=>$yt_viewnum);
+      drupal_write_record('oer_analytics_youtube', $inp_arr, 'course_nid'); 
+    }
+
+  } else { // if it's not an update, populate the database (presumably !is_array in that case..?)
+
+    foreach($vids_courses as $vid => $cnid) {
+
+      if (strpos($vid_id, "PLAYLIST") === FALSE) {
+        $data_views = get_video_data($vid_id);
+        $inp_arr = array('videoid'=>$vid, 'course_nid'=>$cnid, 'totalviews'=>$data_views);
+        drupal_write_record('oer_analytics_vids', $inp_arr);
+      }
+    }
+
+    $now_vids = db_query("SELECT course_nid, totalviews FROM {oer_analytics_vids}"); // TODO secure
+    $yt_info = array();
+    while ($rw = db_fetch_object($now_vids)) {
+      //$video_id = $rw->videoid;
+      $coursenid = $rw->course_nid;
+      $views = $rw->totalviews;
+      // this one-element non-array is fragile for current setup TODO
+      if (array_key_exists($coursenid, $yt_info)) {
+        $yt_info[$coursenid] += (int) $views;
+      } else {
+        $yt_info[$coursenid] = (int) $views;
+      }
+    }
+
+    foreach($yt_info as $cnid => $yt_viewnum) {
+      $inp_arr = array('course_nid'=>$cnid, 'totalviews'=>$yt_viewnum);
+      drupal_write_record('oer_analytics_youtube', $inp_arr); 
+    }
+
+  }
+
+	
+} // end cron block
+
+
+/**
+* Implementation of hook_block().
+*/
+function oer_analytics_block($op = 'list', $delta = 0, $edit = array()) {
+  switch ($op) {
+    case 'list':
+      $blocks['oer-analytics'] = array(
+        'info' => t('Course Analytics'),
+        'cache' => BLOCK_CACHE_PER_PAGE, // remember day cached, for speeding things up
+      );
+      return $blocks;
+    case 'view':
+      if (arg(0) == 'node' && is_numeric(arg(1))) { // node_load() -- check node type..
+        return _oer_analytics_block(arg(1)); // gets info that will be displayed
+      }
+  }
+} 
+
+function _oer_analytics_block($nid) {
+	$node = node_load($nid);
+	if ($node->type == 'course') { // given context, unecessary check? Perhaps not.
+		$stats = array();
+		$full_stats = array();
+		$vidcount = array();
+
+		//tmp -- many following queries should be consolidated; too much looping TODO
+		$db_res = db_query('SELECT course_nid, totalviews, totalcomments FROM {oer_analytics_youtube} WHERE course_nid = %d', $nid);
+
+		$db_res_vids = db_query('SELECT videoid FROM {oer_analytics_vids} WHERE course_nid= %d', $nid);
+		$num_rows = $db_res_vids->num_rows;
+
+		while ($row = db_fetch_object($db_res)) {
+			//$yt_view = $row->oer_analytics_courses.totalviews;
+			$yt_views = $row->totalviews;
+			//$yt_comm = $row->totalcomments;
+			$stats[$row->course_nid] = array($yt_views);
+		}
+
+		while ($row = db_fetch_object($db_ga_res)) {
+			$courseviews = $row->totalviews;
+			$dls = $row->total_zipdownloads;
+			$gastats[$row->nid] = array($courseviews, $dls);
+		}
+
+		foreach($stats as $num=>$arr) {
+      array_push($full_stats, number_format($arr[0]));
+      array_push($full_stats, $num_rows);
+		}
+
+		$ga_stats = oer_analytics_counter_display(); // TODO refactor later!
+
+		// fill in more later
+		if (!empty($full_stats)) {
+			return array(
+				'subject' => t('Course Analytics'),
+				//'content' => theme_item_list(array_merge($ga_stats, $full_stats))
+
+        'content' => <<<EOD
+<div class="oer-analytics-button" id="oer-analytics-button">
+
+<a id="hiddenq" href=""><p id="closebutton">x</p></a>
+  <div class="oer-analytics" id="oer-analytics-visits">
+    <span id="visits-num">
+      <span id="googleanalytics-oer">
+        <p class="statsnums" id="visits-num">{$ga_stats[0]}</p>
+        <p class="oer-analytics-small-descr">course visits</p>
+      </span>
+      <span id="googleanalytics-dls">
+        <p class="statsnums" id="dls-num">{$ga_stats[1]}</p>
+        <p class="oer-analytics-small-descr">downloads</p>
+      </span>
+    </span>
+  </div>
+
+  <div class="oer-analytics" id="oer-analytics-yt-views">
+    <span id="visits-num">
+      <span id="yt-analytics">
+        <p class="statsnums" id="yt-views">{$full_stats[0]}</p>
+        <p class="oer-analytics-small-descr"><a href="http://www.youtube.com/user/openmichigan" target=_blank>YouTube</a> views</p>
+      </span>
+    </span>
+  </div>
+
+</div>
+<button class="hovershow" id="oer-analytics-buttona" type="button"></button>
+EOD
+);
+		} else if (!empty($ga_stats)) {
+
+      if (!is_null($ga_stats[1])) {
+
+      return array( 
+        'subject' => t('Course Analytics'),
+        //'content' => theme_item_list($ga_stats)
+        'content' => <<<EOD
+<div class="oer-analytics-button" id="oer-analytics-button">
+
+<a id="hiddenq" href=""><p id="closebutton">x</p></a>
+
+  <div class="oer-analytics" id="oer-analytics-visits">
+    <span id="visits-num">
+      <span id="googleanalytics-oer">
+        <p class="statsnums" id="visits-num">{$ga_stats[0]}</p>
+        <p class="oer-analytics-small-descr">course visits</p>
+      </span>
+      <span id="googleanalytics-dls">
+        <p class="statsnums" id="dls-num">{$ga_stats[1]}</p>
+        <p class="oer-analytics-small-descr">downloads</p>
+      </span>
+    </span>
+  </div>
+</div>
+
+<button class="hovershow" id="oer-analytics-buttona" type="button"></button>
+EOD
+      );
+  } else {
+    return array( 
+        'subject' => t('Course Analytics'),
+        //'content' => theme_item_list($ga_stats)
+        'content' => <<<EOD
+<div class="oer-analytics-button" id="oer-analytics-button">
+
+<a id="hiddenq" href=""><p id="closebutton">x</p></a>
+  <div class="oer-analytics" id="oer-analytics-visits">
+    <span id="visits-num">
+      <span id="googleanalytics-oer">
+        <p class="statsnums" id="visits-num">{$ga_stats[0]}</p>
+        <p class="oer-analytics-small-descr">course visits</p>
+      </span>
+    </span>
+  </div>
+</div>
+<button class="hovershow" id="oer-analytics-buttona" type="button"></button>
+EOD
+);
+  }
+
+    } else {
+			return;
+		}
+	}
+}
+
+
