@@ -85,10 +85,11 @@ div.oer-analytics-button:active {
 
 p.statsnums {
     font-size:34px;
-    margin-bottom: 1px;
+    margin-bottom: 0px;
     margin-top: 6px;
     opacity: 1.0;
     color: #1b335c;
+    line-height: 1.3em;
 }
 
 p.oer-analytics-small-descr {
@@ -98,7 +99,7 @@ p.oer-analytics-small-descr {
     text-shadow: none;
     color: #1b335c;
     opacity: 1.0;
-    /*line-height: .5em;*/
+    line-height: .5em;
 }
 
 #hiddenq {
