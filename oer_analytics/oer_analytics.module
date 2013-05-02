@@ -533,24 +533,23 @@ function get_video_data($videoid) { // NEW
 /**
 * Implements Cron (parallel) via elysia_cron module.
 */
-// potential questions in comments
 
-// function oer_analytics_cronapi() { // $op and $job = NULL params -- ?? necessary, if so what here?
-//   $items['oer_analytics_cron'] = array( // ok to name channel (?) this?
-//     'description' => 'Perform updates/new population of db tables for oer_analytics module.',
-//     'rule' => '0 3 * *', // every day at 3 am
-//     'callback' => '_oer_analytics_prepcron',
-//     'arguments' => array('all'), // ?
-//   );
+function oer_analytics_cronapi() { // $op and $job = NULL params -- ?? necessary, if so what here?
+  $items['oer_analytics_cron'] = array(
+    'description' => 'Perform updates/new population of db tables for oer_analytics module.',
+    'rule' => '0 * * *', // every day -- should be, anyway
+    'callback' => '_oer_analytics_prepcron',
+    'arguments' => array('all'), // ?
+  );
 
-//   return $items;
-// }
+  return $items;
+}
 
 
 
 // Would-be implementing hook_cron(); populates and updates database tables for analytics module.
-// function _oer_analytics_prepcron() { 
-function oer_analytics_cron() {
+function _oer_analytics_prepcron() { 
+//function oer_analytics_cron() { // for testingonly
 	$vid_db_info = db_query('SELECT field_course_reference_nid, field_video_value FROM {content_field_video} INNER JOIN {content_field_course_reference} WHERE content_field_video.nid = content_field_course_reference.nid AND content_field_video.field_video_provider="youtube" GROUP BY content_field_video.field_video_value'); 
 
   $all_vids_arr = array();
@@ -614,17 +613,6 @@ function oer_analytics_cron() {
         // }
       }
     }
-    // foreach($vids_courses as $vid => $cnid) {
-
-    //   if (strpos($vid_id, "PLAYLIST") === FALSE) {
-    //     $data_views = get_video_data($vid_id);
-    //     $inp_arr = array('videoid'=>$vid, 'course_nid'=>$cnid, 'totalviews'=>$data_views);
-    //     drupal_write_record('oer_analytics_vids', $inp_arr);
-    //     foreach ($inp_arr as $item) {
-    //       drupal_set_message($item);
-    //     }
-    //   }
-    // }
 
     $now_vids = db_query("SELECT course_nid, totalviews FROM {oer_analytics_vids}"); // TODO secure
     $yt_info = array();
