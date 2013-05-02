@@ -563,11 +563,89 @@ function oer_analytics_cron() {
     $vids_courses[$vid] = $cnid; // presumably will work
   }
 
-  foreach($vids_courses as $vid => $cnid) {
-    drupal_set_message("${$vid}-${cnid}");
+  $currvids = db_query('SELECT videoid FROM {oer_analytics_vids}');
+  while ($r = db_fetch_object($currvids)) {
+    $vi = $r->videoid;
+    array_push($curr_vids_arr, $vi);
   }
 
+  if (is_array($curr_vids_arr) && !empty($curr_vids_arr)) { // if this is an update of new videos only do the new ones
 
+    $new_vids = array_diff($all_vids_arr, $curr_vids_arr);
+    foreach($new_vids as $vid_id) {
+      if (strpos($vid_id, "PLAYLIST") === FALSE) {
+        $data_views = get_video_data($vid_id);
+        $inp_arr = array('videoid'=>$vid_id, 'course_nid'=>$vids_courses[$vid_id], 'totalviews'=>$data_views);
+        drupal_write_record('oer_analytics_vids', $inp_arr, 'videoid');
+        // foreach ($inp_arr as $item) {
+        //   drupal_set_message($item);
+        // }
+      }
+    }
+
+    $now_vids = db_query("SELECT course_nid, totalviews FROM {oer_analytics_vids}"); // TODO secure
+    $yt_info = array();
+    while ($rw = db_fetch_object($now_vids)) {
+      //$video_id = $rw->videoid;
+      $coursenid = $rw->course_nid;
+      $views = $rw->totalviews;
+      // this one-element non-array is fragile for current setup TODO
+      if (array_key_exists($coursenid, $yt_info)) {
+        $yt_info[$coursenid] += (int) $views;
+      } else {
+        $yt_info[$coursenid] = (int) $views;
+      }
+    }
+
+    foreach($yt_info as $cnid => $yt_viewnum) {
+      $inp_arr = array('course_nid'=>$cnid, 'totalviews'=>$yt_viewnum);
+      drupal_write_record('oer_analytics_youtube', $inp_arr, 'course_nid'); 
+    }
+
+  } else { // if it's not an update, populate the database (presumably !is_array in that case..?)
+    //drupal_set_message("got to the else");
+    foreach($all_vids_arr as $vid_id) {
+      if (strpos($vid_id, "PLAYLIST") === FALSE) {
+        $data_views = get_video_data($vid_id);
+        $inp_arr = array('videoid'=>$vid_id, 'course_nid'=>$vids_courses[$vid_id], 'totalviews'=>$data_views);
+        drupal_write_record('oer_analytics_vids', $inp_arr);
+        // foreach ($inp_arr as $item) {
+        //   drupal_set_message($item);
+        // }
+      }
+    }
+    // foreach($vids_courses as $vid => $cnid) {
+
+    //   if (strpos($vid_id, "PLAYLIST") === FALSE) {
+    //     $data_views = get_video_data($vid_id);
+    //     $inp_arr = array('videoid'=>$vid, 'course_nid'=>$cnid, 'totalviews'=>$data_views);
+    //     drupal_write_record('oer_analytics_vids', $inp_arr);
+    //     foreach ($inp_arr as $item) {
+    //       drupal_set_message($item);
+    //     }
+    //   }
+    // }
+
+    $now_vids = db_query("SELECT course_nid, totalviews FROM {oer_analytics_vids}"); // TODO secure
+    $yt_info = array();
+    while ($rw = db_fetch_object($now_vids)) {
+      //$video_id = $rw->videoid;
+      $coursenid = $rw->course_nid;
+      $views = $rw->totalviews;
+      // this one-element non-array is fragile for current setup TODO
+      if (array_key_exists($coursenid, $yt_info)) {
+        $yt_info[$coursenid] += (int) $views;
+      } else {
+        $yt_info[$coursenid] = (int) $views;
+      }
+    }
+
+    foreach($yt_info as $cnid => $yt_viewnum) {
+      $inp_arr = array('course_nid'=>$cnid, 'totalviews'=>$yt_viewnum);
+      drupal_write_record('oer_analytics_youtube', $inp_arr); 
+    }
+
+  }
 
 	
 } // end cron block
