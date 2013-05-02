@@ -103,6 +103,7 @@ p.oer-analytics-small-descr {
 }
 
 #hiddenq {
+    text-decoration: none;
     /*
     background-color:#455b7d;
     */
@@ -119,10 +120,16 @@ p.oer-analytics-small-descr {
 
 p#closebutton {
   padding: 0px 3px 5px 3px;
-  background-color: #495c7c;
+  /*background-color: #495c7c;*/
   width: 7px;
   height: 8px;
-  color: white;
+  color: #495c7c;
+  /*border: solid 1px;
+  border-color: #495c7c;
+  -moz-border-radius: 3px;
+  border-radius: 3px;*/
+  /*background-color: #495c7c;*/
+  opacity: 0.5;
   text-align: center;
   text-decoration: none;
   font-family: helvetica, arial, sans-serif;
