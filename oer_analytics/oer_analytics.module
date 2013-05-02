@@ -439,8 +439,6 @@ function oer_analytics_counter_display($path='') {
 
   if ($path == '') {
     $path = oer_analytics_counter_get_searched_path(); 
-    $path = str_replace("/sessions", "", $path);
-    // }
     $path = str_replace("/materials", "", $path);
     $path = str_replace("/highlights", "", $path);
     $path = str_replace("/sessions", "", $path);
@@ -689,6 +687,11 @@ function _oer_analytics_block($nid) {
 		}
 
 		$ga_stats = oer_analytics_counter_display(); // TODO refactor later!
+    $course_path = oer_analytics_counter_get_searched_path();
+    $course_path = str_replace("/materials", "", $course_path);
+    $course_path = str_replace("/highlights", "", $course_path);
+    $course_path = str_replace("/sessions", "", $course_path);
+    $mat_path = $course_path . "/materials";
 
 		// fill in more later
 		if (!empty($full_stats)) {
@@ -717,7 +720,7 @@ function _oer_analytics_block($nid) {
     <span id="visits-num">
       <span id="yt-analytics">
         <p class="statsnums" id="yt-views">{$full_stats[0]}</p>
-        <p class="oer-analytics-small-descr"><a href="http://www.youtube.com/user/openmichigan" target=_blank>YouTube</a> views</p>
+        <p class="oer-analytics-small-descr"><a href="http://open.umich.edu/{$mat_path}" target=_blank>YouTube</a> views</p>
       </span>
     </span>
   </div>
