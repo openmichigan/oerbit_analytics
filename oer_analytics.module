@@ -719,7 +719,7 @@ function _oer_analytics_block($nid) {
   </div>
 
 </div>
-<button class="hovershow" id="hovershow" type="button"></button>
+<button class="hovershow" id="oer-analytics-buttona" type="button"></button>
 EOD
 );
 		} else if (!empty($ga_stats)) {
@@ -748,7 +748,7 @@ EOD
   </div>
 </div>
 
-<button class="hovershow" id="hovershow" type="button"></button>
+<button class="hovershow" id="oer-analytics-buttona" type="button"></button>
 EOD
       );
   } else {
@@ -768,7 +768,7 @@ EOD
     </span>
   </div>
 </div>
-<button class="hovershow" id="hovershow" type="button"></button>
+<button class="hovershow" id="oer-analytics-buttona" type="button"></button>
 EOD
 );
   }
