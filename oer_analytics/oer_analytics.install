@@ -41,45 +41,46 @@ function oer_analytics_enable() {
 */
 function oer_analytics_schema() {
 	//drupal_set_message((st('Adding tables for oer_analytics')));
-	$schema['oer_analytics_courses'] = array(
-		'fields' => array(
-			'nid' => array(
-				'description' => 'The primary identifier for a (course) node.',
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				),
-			'totalviews' => array(
-				'description' => 'Number of total page views the course pg has had overall',
-				'type' => 'int',
-				'unsigned' => TRUE,
- 				'not null' => TRUE,
- 				'default' => 0,
-				),
-			'totalvisits' => array(
-				'description' => 'Number of total page visits the course pg has had overall',
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' =>0,
-				),
-			'total_materialviews' => array(
-				'description' => 'Number of overall views of the MATERIALS page belonging to a course or resource',
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0,
-				),
-			'total_zipdownloads' => array(
-				'description' => 'Total zip downloads of the materials belonging to the course or resource',
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0,
-				),
-			),
-		'primary key' => array('nid'),
-	);
+	
+	// $schema['oer_analytics_courses'] = array(
+	// 	'fields' => array(
+	// 		'nid' => array(
+	// 			'description' => 'The primary identifier for a (course) node.',
+	// 			'type' => 'int',
+	// 			'unsigned' => TRUE,
+	// 			'not null' => TRUE,
+	// 			),
+	// 		'totalviews' => array(
+	// 			'description' => 'Number of total page views the course pg has had overall',
+	// 			'type' => 'int',
+	// 			'unsigned' => TRUE,
+ // 				'not null' => TRUE,
+ // 				'default' => 0,
+	// 			),
+	// 		'totalvisits' => array(
+	// 			'description' => 'Number of total page visits the course pg has had overall',
+	// 			'type' => 'int',
+	// 			'unsigned' => TRUE,
+	// 			'not null' => TRUE,
+	// 			'default' =>0,
+	// 			),
+	// 		'total_materialviews' => array(
+	// 			'description' => 'Number of overall views of the MATERIALS page belonging to a course or resource',
+	// 			'type' => 'int',
+	// 			'unsigned' => TRUE,
+	// 			'not null' => TRUE,
+	// 			'default' => 0,
+	// 			),
+	// 		'total_zipdownloads' => array(
+	// 			'description' => 'Total zip downloads of the materials belonging to the course or resource',
+	// 			'type' => 'int',
+	// 			'unsigned' => TRUE,
+	// 			'not null' => TRUE,
+	// 			'default' => 0,
+	// 			),
+	// 		),
+	// 	'primary key' => array('nid'),
+	// );
 	$schema['oer_analytics_youtube'] = array(
 		'fields' => array(
 			'course_nid' => array(
