@@ -10,7 +10,6 @@ if (Drupal.jsEnabled) {
 
 Drupal.behaviors.oer_analyticsBehavior = function () {
 	$("#oer-analytics-button").hide();
-	console.log("got to line 15");
 	$("#oer-analytics-buttona").click(function () {
 		$("#oer-analytics-button").fadeIn();
 		$("#oer-analytics-buttona").css('display', 'none');
