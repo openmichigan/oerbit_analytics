@@ -29,38 +29,8 @@ div.oer-analytics-button {
     /*display: inline;*/
 }
 
-/*
-div.toshow {
-    max-width: 100px;
-    max-height: 50px;
-    position: fixed;
-    right: 0;
-    top: 60%;
-    display: block;
-    font-family: helvetica, arial, sans-serif;
-    font-weight: lighter;
-    padding: 5px 5px;
-    text-align: left;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-    display: inline;
-    background-color: rgb(249,250,252);
-    background-color: #25E01B;
-}
-*/
 
 .hovershow {
-    /*background-color: #25E01B;*/
-    /*background-color: rgb(249,250,252);
-    font-family: helvetica, arial, sans-serif;
-    font-weight: lighter;
-    padding: 5px 5px;
-    text-align: left;
-    position: fixed;
-    right: 0;
-    top: 80%;
-    */
-
     width: 100%;
     display: block;
     font-family: helvetica, arial, sans-serif;
@@ -84,18 +54,11 @@ div.toshow {
     border-radius: 5px 0 0 5px;
     position: absolute;
     z-index: 100000;
-    /*top: 10%;*/
-    /*top: 0;
-    right: 0;*/
     width: 60px;
     height: 60px;
-    /*right: -2px;
-    left: 100%;*/
     position: fixed;
     right:0;
     top: 40%;
-    /*margin-left: auto;
-    margin-right: 0;*/
     overflow: hidden;
     text-shadow: 0 1px 0 #666;
 }
@@ -155,21 +118,6 @@ p#closebutton {
     line-height: .5em;
 }
 
-/*a#extra_button {
-    text-decoration: none;
-    outline: none;
-    color: #EEE;
-}*/
-/*
-.oer-analytics-button { 
-    background: #12A7EC repeat-x scroll 0 0;
-    border: 1px solid #DE263B;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-    text-shadow: 0 1px 0 #666666;
-    
-}*/
-
 #oer-analytics-visits {
     /* anything needed ? */
 }
@@ -179,53 +127,9 @@ span#visits-num {
     /* anything needed */
 }
 
-
-
-
 #oer-analytics-visits:active {
     background-image: none;
 }
-/*#oer-analytics-visits:hover {
-    background-position: 0 -5px;
-    color: #FFF;
-    text-shadow: 0 1px 0 #333;
-}*/
-
-/*
-#googleanalytics-oer:hover, #googleanalytics-dls:hover, #yt-analytics:hover {
-    background-position: 0 -5px;
-    color: #996633;
-    text-shadow: 0 1px 0 #996633;
-}
-*/
-
-
-/*####FIXED ON THE SIDE####
-
-.oer-analytics-button { 
-    background: #7F1622 url(/sites/default/files/images/extra-gradient.png) repeat-x scroll 0 0;
-    border: 2px solid #EEE;
-    -moz-border-radius: 5px 0 0 5px;
-    border-radius: 5px 0 0 5px;
-    position: fixed;
-    /*z-index: 100000; */ /*
-    top: 15%;
-    width: 300px;
-    right: -2px;
-    left: auto;
-    margin-left: auto;
-    margin-right: 0;
-    overflow: hidden;
-    text-align: right;
-}
-   
- #oer-analyics-button:hover {
-    background-position: 0 -5px;
-    color: #FFF;
-    text-shadow: 0 1px 0 #333;
-    border: 2px solid #FFF;
-} */
-
 
 
 
