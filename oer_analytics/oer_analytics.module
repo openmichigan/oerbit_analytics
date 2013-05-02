@@ -569,7 +569,7 @@ function _oer_analytics_prepcron() {
     array_push($curr_vids_arr, $vi);
   }
 
-  if (is_array($curr_vids_arr)) { // if this is an update of new videos only do the new ones
+  if (is_array($curr_vids_arr) && !empty($curr_vids_arr)) { // if this is an update of new videos only do the new ones
 
     $new_vids = array_diff($all_vids_arr, $curr_vids_arr);
     foreach($new_vids as $vid_id) {
@@ -577,6 +577,9 @@ function _oer_analytics_prepcron() {
         $data_views = get_video_data($vid_id);
         $inp_arr = array('videoid'=>$vid_id, 'course_nid'=>$vids_courses[$vid_id], 'totalviews'=>$data_views);
         drupal_write_record('oer_analytics_vids', $inp_arr, 'videoid');
+        foreach ($inp_arr as $item) {
+          drupal_set_message($item);
+        }
       }
     }
 
@@ -601,14 +604,27 @@ function _oer_analytics_prepcron() {
 
   } else { // if it's not an update, populate the database (presumably !is_array in that case..?)
 
-    foreach($vids_courses as $vid => $cnid) {
-
+    foreach($all_vids_arr as $vid_id) {
       if (strpos($vid_id, "PLAYLIST") === FALSE) {
         $data_views = get_video_data($vid_id);
-        $inp_arr = array('videoid'=>$vid, 'course_nid'=>$cnid, 'totalviews'=>$data_views);
-        drupal_write_record('oer_analytics_vids', $inp_arr);
+        $inp_arr = array('videoid'=>$vid_id, 'course_nid'=>$vids_courses[$vid_id], 'totalviews'=>$data_views);
+        drupal_write_record('oer_analytics_vids', $inp_arr, 'videoid');
+        foreach ($inp_arr as $item) {
+          drupal_set_message($item);
+        }
       }
     }
+    // foreach($vids_courses as $vid => $cnid) {
+
+    //   if (strpos($vid_id, "PLAYLIST") === FALSE) {
+    //     $data_views = get_video_data($vid_id);
+    //     $inp_arr = array('videoid'=>$vid, 'course_nid'=>$cnid, 'totalviews'=>$data_views);
+    //     drupal_write_record('oer_analytics_vids', $inp_arr);
+    //     foreach ($inp_arr as $item) {
+    //       drupal_set_message($item);
+    //     }
+    //   }
+    // }
 
     $now_vids = db_query("SELECT course_nid, totalviews FROM {oer_analytics_vids}"); // TODO secure
     $yt_info = array();
