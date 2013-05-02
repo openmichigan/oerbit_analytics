@@ -1,6 +1,5 @@
 <?php 
 
-
 /**
 * @file
 * Installation file for the Open.Michigan analytics (oer_analytics) module.
@@ -16,7 +15,7 @@ function oer_analytics_install() {
 	//drupal_set_message((st('Installing oer_analytics')));
 	drupal_install_schema('oer_analytics');
 
-	// call function to populate tables
+	// could I call fxn to populate tables reasonably? or wait for cron
 }
 
 /**
@@ -41,7 +40,7 @@ function oer_analytics_enable() {
 */
 function oer_analytics_schema() {
 	//drupal_set_message((st('Adding tables for oer_analytics')));
-	
+
 	// $schema['oer_analytics_courses'] = array(
 	// 	'fields' => array(
 	// 		'nid' => array(
