@@ -9,24 +9,17 @@ if (Drupal.jsEnabled) {
 }
 
 Drupal.behaviors.oer_analyticsBehavior = function () {
-	
-	//$("#hovershow").hide();
 	$("#oer-analytics-button").hide();
-
-	$("#hovershow").hover(function () { // click??
+	console.log("got to line 15");
+	$("#hovershow").click(function () {
 		$("#oer-analytics-button").fadeIn();
 		$("#hovershow").css('display', 'none');
 	});
 
-	//$("#hiddenq").click(function () {
-	$("#oer-analytics-button").hover(function () {
+	$("#hiddenq").click(function () {
 		$("#hovershow").fadeIn();
 		$("#oer-analytics-button").css('display','none');
-		//$("#hovershow").css('display','block');
-		
-	});
-
-	
+	});	
 
 };
 

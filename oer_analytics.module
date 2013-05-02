@@ -695,7 +695,7 @@ function _oer_analytics_block($nid) {
         'content' => <<<EOD
 <div class="oer-analytics-button" id="oer-analytics-button">
 
-<button id="hiddenq" type="button">x</button>
+<a id="hiddenq" href=""><p id="closebutton">x</p></a>
   <div class="oer-analytics" id="oer-analytics-visits">
     <span id="visits-num">
       <span id="googleanalytics-oer">
@@ -732,7 +732,7 @@ EOD
         'content' => <<<EOD
 <div class="oer-analytics-button" id="oer-analytics-button">
 
-<button id="hiddenq" type="button">x</button>
+<a id="hiddenq" href=""><p id="closebutton">x</p></a>
 
   <div class="oer-analytics" id="oer-analytics-visits">
     <span id="visits-num">
@@ -758,7 +758,7 @@ EOD
         'content' => <<<EOD
 <div class="oer-analytics-button" id="oer-analytics-button">
 
-<button id="hiddenq" type="button">x</button>
+<a id="hiddenq" href=""><p id="closebutton">x</p></a>
   <div class="oer-analytics" id="oer-analytics-visits">
     <span id="visits-num">
       <span id="googleanalytics-oer">
