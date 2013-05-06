@@ -499,8 +499,7 @@ function get_pagepath($nodenum) {
 //   }
 // }
 
-// TODO: BELOW -- v3 update -- problems with db and cron here, going back to old version for a bit
-// DO NOT push -- insecure because key -- form implemented to save it but not to access that form data TODO
+
 function get_video_data($videoid) { // NEW
     //$api_key = "AIzaSyAv0ljLFFoCpJ0PEsdyJ6ycmqfP6ZOQj6E";
 
