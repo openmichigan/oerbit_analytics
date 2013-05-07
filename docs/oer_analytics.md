@@ -54,10 +54,6 @@ The arrows in the diagram, you'll notice, are labeled with numbers -- the approx
 
 * TODO: Make functionality more modularizable (e.g. easier to pick out different likely desired pieces of information in the Google Analytics section of the ```oer_analytics.module``` file without digging too much into the code) -- G.A. code in particular will be refactored after first live release.
 
-* TODO: Improve performance and alter cron. Plan to use ```elysia_cron``` module to manage cron updates in particular for YT database storage and upates.
-
-* TODO: Configure database updating concisely./Database updates need correction.
-
 * TODO: Further display decisions, increased user-friendliness for multiple uses
 
 * TODO: Integration of JavaScript charts
