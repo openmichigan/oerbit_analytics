@@ -10,7 +10,7 @@ Module **CURRENTLY IN DEVELOPMENT** and pending significant updates.
 
 ## Dependencies
 
-This module depends on the [OAuth](http://drupal.org/project/oauth) module, the [Google Analytics API](http://drupal.org/project/google_analytics_api) module, and the [Cronplus](http://drupal.org/project/cronplus) module.
+This module depends on the [OAuth](http://drupal.org/project/oauth) module, the [Google Analytics API](http://drupal.org/project/google_analytics_api) module, and the [Elysia Cron](http://drupal.org/project/elysia_cron) module.
 
 ## Use
 
