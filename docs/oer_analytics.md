@@ -18,7 +18,7 @@ Make sure you have the dependencies installed.
 
 Configure your Google Analytics API module such that it will call to the correct Google Analytics profile, to which you have access.
 
-Register for an API Key at the [Google API Console]() if you do not have one. 
+Register for an API Key at the [Google API Console](https://code.google.com/apis/console) if you do not have one. 
 
 Go to ```admin/settings/oer-analytics``` in your Drupal site and paste the API key in that text box. Save it.
 
