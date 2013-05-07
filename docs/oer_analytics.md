@@ -6,7 +6,7 @@
 
 This is a Drupal module built to pair with the OERbit Drupal framework developed by Open.Michigan. It gets YouTube and Google Analytics of the media/web pages published on the [Open.Michigan website](http://open.umich.edu) and displays them in a block, as a themed list (in the current iteration, you may use the Context module to choose where it appears).
 
-Module **CURRENTLY IN DEVELOPMENT** (the display in particular), and pending significant updates.
+Module **CURRENTLY IN DEVELOPMENT** and pending significant updates.
 
 ## Dependencies
 
