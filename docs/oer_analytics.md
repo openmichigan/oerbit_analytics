@@ -18,6 +18,10 @@ Make sure you have the dependencies installed.
 
 Configure your Google Analytics API module such that it will call to the correct Google Analytics profile, to which you have access.
 
+Register for an API Key at the [Google API Console]() if you do not have one. 
+
+Go to ```admin/settings/oer-analytics``` in your Drupal site and paste the API key in that text box. Save it.
+
 Note that the current setup of this module depends on a database structure like that which Open.Michigan's instance of OERbit uses and may need significant modification for other use as it stands.
 
 From GitHub:
@@ -26,10 +30,8 @@ From GitHub:
 
 ```git clone https://github.com/openmichigan/oerbit_analytics.git oer_analytics``` in that folder.
 
-Adjust ```oer_analytics_cron```/cronplus as you see fit or need for your peformance constraints, etc.
 
-
-...that's all you need for the moment (but again, it depends heavily on an instance mirroring Open.Michigan's OERbit, including the structure of the (MySQL) database)
+...that's all you need for the moment. (But again, it depends heavily on an instance mirroring Open.Michigan's OERbit, including the structure of the (MySQL) database.)
 
 
 ## The process
@@ -58,8 +60,9 @@ The arrows in the diagram, you'll notice, are labeled with numbers -- the approx
 
 * TODO: Integration of JavaScript charts
 
+* TODO: more testing, + feature??
+
 ## Licensing information
 
-(for now) See ```oer_analytics.module```, line 1 following.
-
+(for now) See ```oer_analytics.module```
 
