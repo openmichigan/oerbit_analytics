@@ -565,19 +565,7 @@ function _oer_analytics_prepcron() {
     array_push($curr_vids_arr, $vi);
   } // possibly unnecessary
 
-  if (is_array($curr_vids_arr) && !empty($curr_vids_arr)) { // if this is an update of new videos only do the new ones
-
-    // $new_vids = array_diff($all_vids_arr, $curr_vids_arr);
-    // foreach($new_vids as $vid_id) {
-    //   if (strpos($vid_id, "PLAYLIST") === FALSE) {
-    //     $data_views = get_video_data($vid_id);
-    //     $inp_arr = array('videoid'=>$vid_id, 'course_nid'=>$vids_courses[$vid_id], 'totalviews'=>$data_views);
-    //     drupal_write_record('oer_analytics_vids', $inp_arr, 'videoid');
-    //     // foreach ($inp_arr as $item) {
-    //     //   drupal_set_message($item);
-    //     // }
-    //   }
-    // }
+  if (is_array($curr_vids_arr) && !empty($curr_vids_arr)) { // if this is an update because there's stuff already in {vids} table, update all (if nec), don't insert new
 
     foreach($all_vids_arr as $vid_id) {
       if (strpos($vid_id, "PLAYLIST") === FALSE) {
