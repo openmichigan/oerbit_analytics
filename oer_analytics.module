@@ -563,19 +563,27 @@ function _oer_analytics_prepcron() {
   while ($r = db_fetch_object($currvids)) {
     $vi = $r->videoid;
     array_push($curr_vids_arr, $vi);
-  }
+  } // possibly unnecessary
 
   if (is_array($curr_vids_arr) && !empty($curr_vids_arr)) { // if this is an update of new videos only do the new ones
 
-    $new_vids = array_diff($all_vids_arr, $curr_vids_arr);
-    foreach($new_vids as $vid_id) {
+    // $new_vids = array_diff($all_vids_arr, $curr_vids_arr);
+    // foreach($new_vids as $vid_id) {
+    //   if (strpos($vid_id, "PLAYLIST") === FALSE) {
+    //     $data_views = get_video_data($vid_id);
+    //     $inp_arr = array('videoid'=>$vid_id, 'course_nid'=>$vids_courses[$vid_id], 'totalviews'=>$data_views);
+    //     drupal_write_record('oer_analytics_vids', $inp_arr, 'videoid');
+    //     // foreach ($inp_arr as $item) {
+    //     //   drupal_set_message($item);
+    //     // }
+    //   }
+    // }
+
+    foreach($all_vids_arr as $vid_id) {
       if (strpos($vid_id, "PLAYLIST") === FALSE) {
         $data_views = get_video_data($vid_id);
         $inp_arr = array('videoid'=>$vid_id, 'course_nid'=>$vids_courses[$vid_id], 'totalviews'=>$data_views);
         drupal_write_record('oer_analytics_vids', $inp_arr, 'videoid');
-        // foreach ($inp_arr as $item) {
-        //   drupal_set_message($item);
-        // }
       }
     }
 
@@ -757,6 +765,30 @@ EOD
 <button class="hovershow" id="oer-analytics-buttona" type="button"></button>
 EOD
       );
+  } else if (!empty($full_stats) && empty($ga_stats)) {
+    return array(
+        'subject' => t('Course Analytics'),
+        //'content' => theme_item_list(array_merge($ga_stats, $full_stats))
+
+        'content' => <<<EOD
+<div class="oer-analytics-button" id="oer-analytics-button">
+
+<a id="hiddenq" href=""><p id="closebutton">&#10006;</p></a>
+  
+  <div class="oer-analytics" id="oer-analytics-yt-views">
+    <span id="visits-num">
+      <span id="yt-analytics">
+        <p class="statsnums" id="yt-views">{$full_stats[0]}</p>
+        <p class="oer-analytics-small-descr"><a href="http://open.umich.edu/{$mat_path}" target=_blank>YouTube</a> views</p>
+      </span>
+    </span>
+  </div>
+
+</div>
+<button class="hovershow" id="oer-analytics-buttona" type="button"></button>
+EOD
+);
+
   } else {
     return array( 
         'subject' => t('Course Analytics'),
