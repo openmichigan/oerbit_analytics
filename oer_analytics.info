@@ -6,4 +6,5 @@ package = Open Michigan
 dependencies[] = elysia_cron
 dependencies[] = googleanalytics
 dependencies[] = google_analytics_api
+dependencies[] = google_analytics_counter
 
