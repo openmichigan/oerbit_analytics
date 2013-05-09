@@ -38,23 +38,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * ATTRIBUTION INFORMATION
- *
- * Portions of this module file are excerpted from the 
- * Google Analytics Counter Drupal module (http://drupal.org/project/google_analytics
-_counter), 
- * authored by @Vacilando (http://drupal.org/user/45996).
- *
- * All code from the Google Analytics Counter module is licensed under the 
- * GNU General Public License (http://www.gnu.org/licenses/old-licenses/gpl-2.0.html) 
- * and the reused and modified code is distributed here with those requirements; 
- * it is NOT subject to copyright by the Regents of the University of Michigan.
- * Some modifications to the source code of the Google Analytics Counter module were made, 
- * and included in this OERbit Analytics module, by @jczetta, 2013.03.29 - 2013.04.02.
-*/
 
-// TODO should be here? -- admin form
 /**
 * Form builder. Configure oer_analytics module.
 * 
