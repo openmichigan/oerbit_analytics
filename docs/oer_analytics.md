@@ -12,17 +12,25 @@ Module **CURRENTLY IN DEVELOPMENT** and pending significant updates.
 
 This module depends on the [OAuth](http://drupal.org/project/oauth) module, the [Google Analytics API](http://drupal.org/project/google_analytics_api) module, and the [Elysia Cron](http://drupal.org/project/elysia_cron) module.
 
-## Use
+## Use (updated 2013/05/09)
 
-Make sure you have the dependencies installed.
+1. **Make sure you have the dependencies installed:**
+	elysia_cron
+	googleanalytics (contained in Google_Analytics_Reports, but you do NOT have to install Reports' dependencies)
+	google_analytics_api
+	google_analytics_counter
 
-Configure your Google Analytics API module such that it will call to the correct Google Analytics profile, to which you have access.
+2. **Configure dependencies as necessary.**
 
-Register for an API Key at the [Google API Console](https://code.google.com/apis/console) if you do not have one. 
+* For the Google Analytics API, in the admin settings, click the "setup" button, then choose the correct profile (assuming all the other things for your Google Analytics are set up)
 
-Go to ```admin/settings/oer-analytics``` in your Drupal site and paste the API key in that text box. Save it.
+* Register for an API Key at the [Google API Console](https://code.google.com/apis/console) if you do not have one. 
 
-Note that the current setup of this module depends on a database structure like that which Open.Michigan's instance of OERbit uses and may need significant modification for other use as it stands.
+* at ``` admin/settings/oer-analytics ``` in your Drupal site (OERbit install), paste the API key in that text box, and hit save.
+
+	Note that the current setup of this module depends on a database structure like that which Open.Michigan's instance of OERbit uses and may need significant modification for other use as it stands.
+
+3. **Install the module:**
 
 From GitHub:
 
@@ -30,8 +38,12 @@ From GitHub:
 
 ```git clone https://github.com/openmichigan/oerbit_analytics.git oer_analytics``` in that folder.
 
+4. **Add block to the correct Context.**
 
-...that's all you need for the moment. (But again, it depends heavily on an instance mirroring Open.Michigan's OERbit, including the structure of the (MySQL) database.)
+Go to
+Context > List > _click "Edit" in 'education section/course' (a special OERbit thing)_ > Blocks > add **oer_analytics** to Course Navigation
+
+That's all! (Check PHPMyAdmin/your database, and your install, to be sure it is working as expected)
 
 
 ## The process
