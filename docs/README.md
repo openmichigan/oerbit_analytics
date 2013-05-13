@@ -32,7 +32,7 @@ This module depends on the [OAuth](http://drupal.org/project/oauth) module, the 
 
 	Note that the current setup of this module depends on a database structure like that which Open.Michigan's instance of OERbit uses and may need significant modification for other use as it stands.
 
-3. **Install the module:**
+3) **Install the module:**
 
 	From GitHub:
 
@@ -40,7 +40,7 @@ This module depends on the [OAuth](http://drupal.org/project/oauth) module, the 
 
 	```git clone https://github.com/openmichigan/oerbit_analytics.git oer_analytics``` in that folder.
 
-4. **Add block to the correct Context.**
+4) **Add block to the correct Context.**
 
 Go to
 Context > List > _click "Edit" in 'education section/course' (a special OERbit thing)_ > Blocks > add **oer_analytics** to Course Navigation
