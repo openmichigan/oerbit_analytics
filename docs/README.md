@@ -64,7 +64,7 @@ The arrows in the diagram, you'll notice, are labeled with numbers -- the approx
 
 4) This is the 'fourth part' of the process, but it is really operating on a slightly different timeline: leveraging the Google Analytics API module _via_ the Google Analytics Counter Module, both of which this currently depends on, to grab Google Analytics data for the correct pages in the setup G.A. (Google Analytics) profile. Specifically, this module will grab views for every page of node type _course_ (defined in [OERbit](https://github.com/openmichigan/OERbit) ), and for each course which has a bulk download, loads of the bulk download page for that course. (Further updates pending.)
 
-5) All this information, whether from the database, live API responses, or cache, is aggregated properly and displayed.
+5) All this information, whether from the database, live API responses, or cache, is aggregated properly (represented by arrow 5) and displayed (6).
 
 ## TODOS and concerns
 
