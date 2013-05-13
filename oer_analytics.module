@@ -343,7 +343,11 @@ function _oer_analytics_block($nid) {
     //drupal_set_message($courseviews);
     $dls_views = $resultarr_dls[0];
     //drupal_set_message($dls_views);
-    $ga_stats = array(number_format($courseviews), number_format($dls_views));
+    if ($dls_views > 10) {
+      $ga_stats = array(number_format($courseviews), number_format($dls_views));
+    } else {
+      $ga_stats = array(number_format($courseviews));
+    }
 
     // fill in more later
     if (!empty($full_stats)) {
