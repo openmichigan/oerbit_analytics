@@ -108,9 +108,17 @@ function today() {
 
 // implements hook_init(), docs later
 function oer_analytics_init(){
+  define('JQUERY_UPDATE_REPLACE_PATH', 'sites/all/libraries/jquery/1.5.2'); // hmmmm
+
   drupal_add_css(drupal_get_path('module', 'oer_analytics') .'/oer_analytics.css');
 
   drupal_add_js(drupal_get_path('module', 'oer_analytics') .'/oer_analytics.js');
+
+}
+
+function hook_js_alter(&$javascript) {
+  // Swap out jQuery to use an updated version of the library. 
+  $javascript['misc/jquery.js']['data'] = drupal_get_path('module', 'jquery_update') . '/jquery.js';
 }
 
 
@@ -352,7 +360,7 @@ function _oer_analytics_block($nid) {
     // fill in more later
     if (!empty($full_stats)) {
       return array(
-        'subject' => t('Course Analytics'),
+        //'subject' => t('Course Analytics'),
         //'content' => theme_item_list(array_merge($ga_stats, $full_stats))
 
         'content' => <<<EOD
@@ -390,7 +398,7 @@ EOD
       if (!is_null($ga_stats[1])) {
 
       return array( 
-        'subject' => t('Course Analytics'),
+        //'subject' => t('Course Analytics'),
         //'content' => theme_item_list($ga_stats)
         'content' => <<<EOD
   <div class="oer-analytics-button" id="oer-analytics-button">
@@ -416,7 +424,7 @@ EOD
       );
   } else if (!empty($full_stats) && empty($ga_stats)) {
     return array(
-        'subject' => t('Course Analytics'),
+        //'subject' => t('Course Analytics'),
         //'content' => theme_item_list(array_merge($ga_stats, $full_stats))
 
         'content' => <<<EOD
@@ -440,7 +448,7 @@ EOD
 
   } else {
     return array( 
-        'subject' => t('Course Analytics'),
+        //'subject' => t('Course Analytics'),
         //'content' => theme_item_list($ga_stats)
         'content' => <<<EOD
 <div class="oer-analytics-button" id="oer-analytics-button">
