@@ -195,7 +195,7 @@ function get_video_data($videoid) { // NEW
 function oer_analytics_cronapi() { // $op and $job = NULL params -- ?? necessary, if so what here?
   $items['oer_analytics_cron'] = array(
     'description' => 'Perform updates/new population of db tables for oer_analytics module.',
-    'rule' => '0 * * *', // every day -- should be, anyway
+    'rule' => '0 2 * * *', // every day at 2am
     'callback' => '_oer_analytics_prepcron',
     'arguments' => array('all'), // ?
   );
