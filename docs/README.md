@@ -34,11 +34,11 @@ This module depends on the [OAuth](http://drupal.org/project/oauth) module, the 
 
 3) **Install the module:**
 
-	From GitHub:
+From GitHub:
 
-	```cd``` to the ```sites/all/modules``` folder of your OERbit instance.
+```cd``` to the ```sites/all/modules``` folder of your OERbit instance.
 
-	```git clone https://github.com/openmichigan/oerbit_analytics.git oer_analytics``` in that folder.
+```git clone https://github.com/openmichigan/oerbit_analytics.git oer_analytics``` in that folder.
 
 4) **Add block to the correct Context.**
 
