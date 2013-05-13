@@ -14,13 +14,13 @@ This module depends on the [OAuth](http://drupal.org/project/oauth) module, the 
 
 ## Use (updated 2013/05/09)
 
-1. **Make sure you have the dependencies installed:**
+1) **Make sure you have the dependencies installed:**
 	elysia_cron
 	googleanalytics (contained in Google_Analytics_Reports, but you do NOT have to install Reports' dependencies)
 	google_analytics_api
 	google_analytics_counter
 
-2. **Configure dependencies as necessary.**
+2) **Configure dependencies as necessary.**
 
 * For the Google Analytics API, in the admin settings, click the "setup" button, then choose the correct profile (assuming all the other things for your Google Analytics are set up)
 
@@ -32,11 +32,11 @@ This module depends on the [OAuth](http://drupal.org/project/oauth) module, the 
 
 3. **Install the module:**
 
-From GitHub:
+	From GitHub:
 
-```cd``` to the ```sites/all/modules``` folder of your OERbit instance.
+	```cd``` to the ```sites/all/modules``` folder of your OERbit instance.
 
-```git clone https://github.com/openmichigan/oerbit_analytics.git oer_analytics``` in that folder.
+	```git clone https://github.com/openmichigan/oerbit_analytics.git oer_analytics``` in that folder.
 
 4. **Add block to the correct Context.**
 
@@ -56,11 +56,11 @@ The arrows in the diagram, you'll notice, are labeled with numbers -- the approx
 
 1) OERbit queries the database for information (specifically, YouTube video IDs and the Drupal node IDs with which they are associated)
 
-2) A call is made to the YouTube API (currently, v2, which is to be deprecated), using the information gathered from the database, in order to get information e.g. # of views per video
+2) A call is made to the YouTube Data API (v3), using the information gathered from the database, in order to get information e.g. # of views per video.
 
-3) The aggregated information from steps (1) and (2) is properly aggregated and stored in new database tables for the oer_analytics module
+3) The aggregated information from steps (1) and (2) is properly aggregated and stored in new database tables for the oer_analytics module.
 
-4) This is the 'fourth part' of the process, but it is also a more continuous process really, operating on a slightly different timeline: leveraging the Google Analytics API module, which this depends on, to grab Google Analytics data for the correct pages in the setup G.A. (Google Analytics) profile. Specifically, this module will grab views for every page of node type _course_ (defined in [OERbit](https://github.com/openmichigan/OERbit) ), and for each course which has a bulk download, loads of the bulk download page for that course. (Further updates pending.)
+4) This is the 'fourth part' of the process, but it is really operating on a slightly different timeline: leveraging the Google Analytics API module _via_ the Google Analytics Counter Module, both of which this currently depends on, to grab Google Analytics data for the correct pages in the setup G.A. (Google Analytics) profile. Specifically, this module will grab views for every page of node type _course_ (defined in [OERbit](https://github.com/openmichigan/OERbit) ), and for each course which has a bulk download, loads of the bulk download page for that course. (Further updates pending.)
 
 5) All this information, whether from the database, live API responses, or cache, is aggregated properly and displayed.
 
