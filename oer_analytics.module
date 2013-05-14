@@ -157,7 +157,18 @@ function landingpg_path($fullpath) {
 
 
 
+function get_video_title($videoid) { // NEW
+    //$api_key = "AIzaSyAv0ljLFFoCpJ0PEsdyJ6ycmqfP6ZOQj6E";
 
+    $api_key = variable_get('oer_analytics_gac_key', array()); // excitement?
+    $baseurl = "https://www.googleapis.com/youtube/v3/videos?id={$videoid}&key={$api_key}&part=snippet";
+
+    $JSON_first = drupal_http_request($baseurl);
+    $JSON = $JSON_first->data;
+    $json_data = json_decode($JSON);
+    $title = $json_data->{'items'}[0]->{'snippet'}->{'title'}; 
+    return $title;
+}
 
 
 
@@ -309,6 +320,29 @@ function oer_analytics_block($op = 'list', $delta = 0, $edit = array()) {
   }
 } 
 
+
+function most_watched_vid($nid) {
+  // to get most-viewed video
+    $db_vid_amts = db_query('SELECT videoid, totalviews FROM {oer_analytics_vids} WHERE course_nid = %d', $nid);
+    $vid_amt_arr = array();
+    while ($row = db_fetch_object($db_vid_amts)) {
+      $viewnum = $row->totalviews;
+      $vid = $row->videoid;
+      $vid_amt_arr[$vid] = $viewnum;
+    }
+    arsort($vid_amt_arr);
+    $most_vids = array_keys($vid_amt_arr);
+    $mv = $most_vids[0];
+    $title = get_video_title($mv);
+    if (count($title) > 10) {
+      $title = substr($title, 0, 10); 
+      $title = $title . "...";
+    }
+    $vidurl = "http://www.youtube.com/watch?v=" . $mv;
+    return "<a id='mostvidlink' href='" . $vidurl . "' target=_blank>${title}</a>";
+}
+
+
 function _oer_analytics_block($nid) {
   $node = node_load($nid);
   if ($node->type == 'course') { // given context, unecessary check? Perhaps not.
@@ -319,8 +353,13 @@ function _oer_analytics_block($nid) {
     //tmp -- many following queries should be consolidated; too much looping TODO
     $db_res = db_query('SELECT course_nid, totalviews, totalcomments FROM {oer_analytics_youtube} WHERE course_nid = %d', $nid);
 
-    $db_res_vids = db_query('SELECT videoid FROM {oer_analytics_vids} WHERE course_nid= %d', $nid);
-    $num_rows = $db_res_vids->num_rows;
+    // for number of vids in course
+    // $db_res_vids = db_query('SELECT videoid FROM {oer_analytics_vids} WHERE course_nid= %d', $nid);
+    // $num_rows = $db_res_vids->num_rows;
+
+    
+
+
 
     while ($row = db_fetch_object($db_res)) {
       //$yt_view = $row->oer_analytics_courses.totalviews;
@@ -359,6 +398,8 @@ function _oer_analytics_block($nid) {
 
     // fill in more later
     if (!empty($full_stats)) {
+      $most_watched_vid_val = most_watched_vid($nid);
+
       return array(
         //'subject' => t('Course Analytics'),
         //'content' => theme_item_list(array_merge($ga_stats, $full_stats))
@@ -385,6 +426,8 @@ function _oer_analytics_block($nid) {
       <span id="yt-analytics">
         <p class="statsnums" id="yt-views">{$full_stats[0]}</p>
         <p class="oer-analytics-small-descr"><a href="http://open.umich.edu/{$mat_path}" target=_blank>YouTube</a> views</p>
+        <p id="mostviewedvid" class="oer-analytics-small-descr">most viewed video:</p>
+        <p id="mostviewedvid_title" class="oer-analytics-small-descr">${most_watched_vid_val}</p>
       </span>
     </span>
   </div>

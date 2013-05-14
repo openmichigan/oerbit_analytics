@@ -102,6 +102,15 @@ p.oer-analytics-small-descr {
     line-height: .5em;
 }
 
+p#mostviewedvid {
+    font: bold;
+    font-size: 10px;
+}
+
+p#mostviewedvid_title {
+    font-size: 9px;
+}
+
 #hiddenq {
     text-decoration: none;
     /*
