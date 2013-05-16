@@ -413,7 +413,7 @@ function _oer_analytics_block($nid) {
     <span id="visits-num">
       <span id="googleanalytics-oer">
         <p class="statsnums" id="visits-num">{$ga_stats[0]}</p>
-        <p class="oer-analytics-small-descr">course visits</p>
+        <p class="oer-analytics-small-descr">course views</p>
       </span>
       <span id="googleanalytics-dls">
         <p class="statsnums" id="dls-num">{$ga_stats[1]}</p>
@@ -427,7 +427,8 @@ function _oer_analytics_block($nid) {
       <span id="yt-analytics">
         <p class="statsnums" id="yt-views">{$full_stats[0]}</p>
         <p class="oer-analytics-small-descr"><a href="http://open.umich.edu/{$mat_path}" target=_blank>YouTube</a> views</p>
-       
+        <!-- <p id="mostviewedvid" class="oer-analytics-small-descr">most viewed video:</p>
+        <p id="mostviewedvid_title" class="oer-analytics-small-descr">${most_watched_vid_val}</p> -->
       </span>
     </span>
   </div>
@@ -452,7 +453,7 @@ EOD
     <span id="visits-num">
       <span id="googleanalytics-oer">
         <p class="statsnums" id="visits-num">{$ga_stats[0]}</p>
-        <p class="oer-analytics-small-descr">course visits</p>
+        <p class="oer-analytics-small-descr">course views</p>
       </span>
       <span id="googleanalytics-dls">
         <p class="statsnums" id="dls-num">{$ga_stats[1]}</p>
@@ -501,7 +502,7 @@ EOD
     <span id="visits-num">
       <span id="googleanalytics-oer">
         <p class="statsnums" id="visits-num">{$ga_stats[0]}</p>
-        <p class="oer-analytics-small-descr">course visits</p>
+        <p class="oer-analytics-small-descr">course views</p>
       </span>
     </span>
   </div>
