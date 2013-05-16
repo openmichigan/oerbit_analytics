@@ -103,7 +103,7 @@ p.oer-analytics-small-descr {
 }
 
 p#mostviewedvid {
-    font: bold;
+    font: italic;
     font-size: 10px;
 }
 
@@ -113,6 +113,9 @@ p#mostviewedvid_title {
 
 #hiddenq {
     text-decoration: none;
+    background-color: transparent;
+    border:0;
+    padding:0;
     /*
     background-color:#455b7d;
     */
