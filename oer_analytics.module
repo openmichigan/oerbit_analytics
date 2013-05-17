@@ -408,7 +408,7 @@ function _oer_analytics_block($nid) {
         'content' => <<<EOD
   <div class="oer-analytics-button" id="oer-analytics-button">
 
-  <button id="hiddenq"><p id="closebutton">&#10006;</p></button>
+  <button aria-text="close the analytics display" id="hiddenq"><p id="closebutton">&#10006;</p></button>
   <div class="oer-analytics" id="oer-analytics-visits">
     <span id="visits-num">
       <span id="googleanalytics-oer">
@@ -445,7 +445,7 @@ EOD
         'content' => <<<EOD
   <div class="oer-analytics-button" id="oer-analytics-button">
 
-  <button id="hiddenq"><p id="closebutton">&#10006;</p></button>
+  <button aria-text="close the analytics display" id="hiddenq"><p id="closebutton">&#10006;</p></button>
   <div class="oer-analytics" id="oer-analytics-visits">
     <span id="visits-num">
       <span id="googleanalytics-oer">
@@ -482,7 +482,7 @@ EOD
         'content' => <<<EOD
   <div class="oer-analytics-button" id="oer-analytics-button">
 
- <button id="hiddenq"><p id="closebutton">&#10006;</p></button>
+<button aria-text="close the analytics display" id="hiddenq"><p id="closebutton">&#10006;</p></button>
 
   <div class="oer-analytics" id="oer-analytics-visits">
     <span id="visits-num">
@@ -509,7 +509,7 @@ EOD
         'content' => <<<EOD
 <div class="oer-analytics-button" id="oer-analytics-button">
 
-<button id="hiddenq"><p id="closebutton">&#10006;</p></button>
+<button aria-text="close the analytics display" id="hiddenq"><p id="closebutton">&#10006;</p></button>
   
   <div class="oer-analytics" id="oer-analytics-yt-views">
     <span id="visits-num">
@@ -532,7 +532,7 @@ EOD
         'content' => <<<EOD
 <div class="oer-analytics-button" id="oer-analytics-button">
 
-<button id="hiddenq"><p id="closebutton">&#10006;</p></button>
+<button aria-text="close the analytics display" id="hiddenq"><p id="closebutton">&#10006;</p></button>
   <div class="oer-analytics" id="oer-analytics-visits">
     <span id="visits-num">
       <span id="googleanalytics-oer">
