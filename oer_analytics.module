@@ -413,7 +413,7 @@ function _oer_analytics_block($nid) {
     <span id="visits-num">
       <span id="googleanalytics-oer">
         <p class="statsnums" id="visits-num">{$ga_stats[0]}</p>
-        <p class="oer-analytics-small-descr">course views</p>
+        <p class="oer-analytics-small-descr">views</p>
       </span>
       <span id="googleanalytics-dls">
         <p class="statsnums" id="dls-num">{$ga_stats[1]}</p>
@@ -434,7 +434,7 @@ function _oer_analytics_block($nid) {
   </div>
 
   </div>
-  <button class="hovershow" id="oer-analytics-buttona" type="button"></button>
+  <button class="hovershow" id="oer-analytics-buttona" aria-label="click this for usage data on this course or resource" type="button"></button>
 EOD
 );
     } else if (!empty($full_stats) && count($ga_stats) < 2) {
@@ -450,7 +450,7 @@ EOD
     <span id="visits-num">
       <span id="googleanalytics-oer">
         <p class="statsnums" id="visits-num">{$ga_stats[0]}</p>
-        <p class="oer-analytics-small-descr">course views</p>
+        <p class="oer-analytics-small-descr">views</p>
       </span>
     </span>
   </div>
@@ -467,7 +467,7 @@ EOD
   </div>
 
   </div>
-  <button class="hovershow" id="oer-analytics-buttona" type="button"></button>
+  <button class="hovershow" id="oer-analytics-buttona" aria-label="click this for usage data on this course or resource" type="button"></button>
 EOD
 );
 
@@ -488,7 +488,7 @@ EOD
     <span id="visits-num">
       <span id="googleanalytics-oer">
         <p class="statsnums" id="visits-num">{$ga_stats[0]}</p>
-        <p class="oer-analytics-small-descr">course views</p>
+        <p class="oer-analytics-small-descr">views</p>
       </span>
       <span id="googleanalytics-dls">
         <p class="statsnums" id="dls-num">{$ga_stats[1]}</p>
@@ -498,7 +498,7 @@ EOD
   </div>
   </div>
 
-  <button class="hovershow" id="oer-analytics-buttona" type="button"></button>
+    <button class="hovershow" id="oer-analytics-buttona" aria-label="click this for usage data on this course or resource" type="button"></button>
 EOD
       );
   } else if (!empty($full_stats) && empty($ga_stats)) {
@@ -521,7 +521,7 @@ EOD
   </div>
 
 </div>
-<button class="hovershow" id="oer-analytics-buttona" type="button"></button>
+<button class="hovershow" id="oer-analytics-buttona" aria-label="click this for usage data on this course or resource" type="button"></button>
 EOD
 );
 
@@ -537,12 +537,12 @@ EOD
     <span id="visits-num">
       <span id="googleanalytics-oer">
         <p class="statsnums" id="visits-num">{$ga_stats[0]}</p>
-        <p class="oer-analytics-small-descr">course views</p>
+        <p class="oer-analytics-small-descr">views</p>
       </span>
     </span>
   </div>
 </div>
-<button class="hovershow" id="oer-analytics-buttona" type="button"></button>
+<button class="hovershow" id="oer-analytics-buttona" aria-label="click this for usage data on this course or resource" type="button"></button>
 EOD
 );
   }
