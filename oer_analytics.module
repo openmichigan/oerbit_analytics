@@ -398,7 +398,7 @@ function _oer_analytics_block($nid) {
     }
 
     // fill in more later
-    if (!empty($full_stats)) {
+    if (!empty($full_stats) && count($ga_stats) == 2) {
       //$most_watched_vid_val = most_watched_vid($nid);
 
       return array(
@@ -437,6 +437,41 @@ function _oer_analytics_block($nid) {
   <button class="hovershow" id="oer-analytics-buttona" type="button"></button>
 EOD
 );
+    } else if (!empty($full_stats) && count($ga_stats) < 2) {
+        return array(
+        //'subject' => t('Course Analytics'),
+        //'content' => theme_item_list(array_merge($ga_stats, $full_stats))
+
+        'content' => <<<EOD
+  <div class="oer-analytics-button" id="oer-analytics-button">
+
+  <button id="hiddenq"><p id="closebutton">&#10006;</p></button>
+  <div class="oer-analytics" id="oer-analytics-visits">
+    <span id="visits-num">
+      <span id="googleanalytics-oer">
+        <p class="statsnums" id="visits-num">{$ga_stats[0]}</p>
+        <p class="oer-analytics-small-descr">course views</p>
+      </span>
+    </span>
+  </div>
+
+  <div class="oer-analytics" id="oer-analytics-yt-views">
+    <span id="visits-num">
+      <span id="yt-analytics">
+        <p class="statsnums" id="yt-views">{$full_stats[0]}</p>
+        <p class="oer-analytics-small-descr"><a href="http://open.umich.edu/{$mat_path}" target=_blank>YouTube</a> views</p>
+        <!-- <p id="mostviewedvid" class="oer-analytics-small-descr">most viewed video:</p>
+        <p id="mostviewedvid_title" class="oer-analytics-small-descr">${most_watched_vid_val}</p> -->
+      </span>
+    </span>
+  </div>
+
+  </div>
+  <button class="hovershow" id="oer-analytics-buttona" type="button"></button>
+EOD
+);
+
+
     } else if (!empty($ga_stats)) {
 
       if (!is_null($ga_stats[1])) {
