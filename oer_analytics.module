@@ -220,86 +220,89 @@ function oer_analytics_cronapi() { // $op and $job = NULL params -- ?? necessary
 // Would-be implementing hook_cron(); populates and updates database tables for analytics module.
 function _oer_analytics_prepcron() { 
 //function oer_analytics_cron() { // for testingonly
-  $vid_db_info = db_query('SELECT field_course_reference_nid, field_video_value FROM {content_field_video} INNER JOIN {content_field_course_reference} WHERE content_field_video.vid = content_field_course_reference.vid AND content_field_video.field_video_provider="youtube" GROUP BY content_field_video.field_video_value'); 
+  $vid_db_info = db_query('SELECT field_course_reference_nid, field_video_value FROM {content_field_video} INNER JOIN {content_field_course_reference} WHERE content_field_video.vid = content_field_course_reference.vid AND content_field_video.field_video_provider="youtube" ORDER BY field_course_reference_nid'); 
 
   $all_vids_arr = array();
-  $curr_vids_arr = array();
-  $vids_courses = array();
   while ($row = db_fetch_object($vid_db_info)) {
     $vid = $row->field_video_value;
     $cnid = $row->field_course_reference_nid;
-    array_push($all_vids_arr, $vid);
-    $vids_courses[$vid] = $cnid; // presumably will work
+    $all_vids_arr[$vid] = array('course_nid' => $cnid, 'already_tracked' => 0);
   }
+  //drupal_set_message('got the list of ALL the videos');
+  //dvm($all_vids_arr);
 
+  // Get the list of the video IDs we currently have numbers for
   $currvids = db_query('SELECT videoid FROM {oer_analytics_vids}');
-  while ($r = db_fetch_object($currvids)) {
-    $vi = $r->videoid;
-    array_push($curr_vids_arr, $vi);
-  } // possibly unnecessary
-
-  if (is_array($curr_vids_arr) && !empty($curr_vids_arr)) { // if this is an update because there's stuff already in {vids} table, update all (if nec), don't insert new
-
-    foreach($all_vids_arr as $vid_id) {
-      if (strpos($vid_id, "PLAYLIST") === FALSE) {
-        $data_views = get_video_data($vid_id);
-        $inp_arr = array('videoid'=>$vid_id, 'course_nid'=>$vids_courses[$vid_id], 'totalviews'=>$data_views);
-        drupal_write_record('oer_analytics_vids', $inp_arr, 'videoid');
-      }
+  while ($row = db_fetch_object($currvids)) {
+    $vi = $row->videoid;
+    if (array_key_exists($vi, $all_vids_arr)) {	// May have been deleted
+      //drupal_set_message("Video ID {$vi} is already being tracked");
+      $all_vids_arr[$vi]['already_tracked'] = TRUE;
+    } else {
+      //drupal_set_message("Video ID {$vi} appears to have been deleted");
     }
-
-    $now_vids = db_query("SELECT course_nid, totalviews FROM {oer_analytics_vids}"); // TODO secure
-    $yt_info = array();
-    while ($rw = db_fetch_object($now_vids)) {
-      //$video_id = $rw->videoid;
-      $coursenid = $rw->course_nid;
-      $views = $rw->totalviews;
-      // this one-element non-array is fragile for current setup TODO
-      if (array_key_exists($coursenid, $yt_info)) {
-        $yt_info[$coursenid] += (int) $views;
-      } else {
-        $yt_info[$coursenid] = (int) $views;
-      }
-    }
-
-    foreach($yt_info as $cnid => $yt_viewnum) {
-      $inp_arr = array('course_nid'=>$cnid, 'totalviews'=>$yt_viewnum);
-      drupal_write_record('oer_analytics_youtube', $inp_arr, 'course_nid'); 
-    }
-
-  } else { // if it's not an update, populate the database (presumably !is_array in that case..?)
-    //drupal_set_message("got to the else");
-    foreach($all_vids_arr as $vid_id) {
-      if (strpos($vid_id, "PLAYLIST") === FALSE) {
-        $data_views = get_video_data($vid_id);
-        $inp_arr = array('videoid'=>$vid_id, 'course_nid'=>$vids_courses[$vid_id], 'totalviews'=>$data_views);
-        drupal_write_record('oer_analytics_vids', $inp_arr);
-        // foreach ($inp_arr as $item) {
-        //   drupal_set_message($item);
-        // }
-      }
-    }
-
-    $now_vids = db_query("SELECT course_nid, totalviews FROM {oer_analytics_vids}"); // TODO secure
-    $yt_info = array();
-    while ($rw = db_fetch_object($now_vids)) {
-      //$video_id = $rw->videoid;
-      $coursenid = $rw->course_nid;
-      $views = $rw->totalviews;
-      // this one-element non-array is fragile for current setup TODO
-      if (array_key_exists($coursenid, $yt_info)) {
-        $yt_info[$coursenid] += (int) $views;
-      } else {
-        $yt_info[$coursenid] = (int) $views;
-      }
-    }
-
-    foreach($yt_info as $cnid => $yt_viewnum) {
-      $inp_arr = array('course_nid'=>$cnid, 'totalviews'=>$yt_viewnum);
-      drupal_write_record('oer_analytics_youtube', $inp_arr); 
-    }
-
   }
+
+  //drupal_set_message('finished processing this list of currently tracked videos');
+  //dvm($all_vids_arr);
+
+  // For each current video, get the view count and write out the
+  // updated (or new) entry with the view count for that video
+  foreach($all_vids_arr as $vid_id => $info) {
+    if (strpos($vid_id, "PLAYLIST") !== FALSE) {
+      //drupal_set_message("Skipping video with id {$vid_id} (it is a PLAYLIST)");
+      continue;
+    }
+    $data_views = get_video_data($vid_id);
+    $inp_arr = array('videoid' => $vid_id,
+                     'course_nid' => $info['course_nid'],
+		     'totalviews' => $data_views);
+    if ($info['already_tracked'] === TRUE) {
+      //drupal_set_message("oer_analytics_vids already has an entry for videoid {$vid_id}");
+      drupal_write_record('oer_analytics_vids', $inp_arr, 'videoid');
+    } else {
+      //drupal_set_message("creating a new entry in oer_analytics_vids for videoid {$vid_id}");
+      drupal_write_record('oer_analytics_vids', $inp_arr);
+    }
+  }
+
+  // Get the list of the courses we currently have numbers for
+  $curr_courses_arr = array();
+  $currcourses = db_query('SELECT course_nid from {oer_analytics_youtube}');
+  while ($row = db_fetch_object($currcourses)) {
+    $curr_courses_arr[] = $row->course_nid;
+  }
+  //drupal_set_message('got the list of ALL the currently tracked courses from oer_analytics_youtube');
+  //dvm($curr_courses_arr);
+
+  // Acccumulate the view count for all the videos for each course
+  $yt_info = array();
+  $now_vids = db_query("SELECT course_nid, totalviews FROM {oer_analytics_vids}"); // TODO secure
+  while ($row = db_fetch_object($now_vids)) {
+    //$video_id = $row->videoid;
+    $coursenid = $row->course_nid;
+    $views = $row->totalviews;
+    // this one-element non-array is fragile for current setup TODO
+    if (array_key_exists($coursenid, $yt_info)) {
+      $yt_info[$coursenid] += (int) $views;
+    } else {
+      $yt_info[$coursenid] = (int) $views;
+    }
+  }
+
+  // Write out the updated (or new) entries with the total view count for each course
+  foreach($yt_info as $cnid => $yt_viewnum) {
+    $inp_arr = array('course_nid' => $cnid,
+                     'totalviews' => $yt_viewnum);
+    if (array_search($cnid, $curr_courses_arr) !== FALSE) {
+      //drupal_set_message("oer_analytics_youtube already has an entry for course {$cnid}");
+      drupal_write_record('oer_analytics_youtube', $inp_arr, 'course_nid');
+    } else {
+      //drupal_set_message("creating a new entry in oer_analytics_youtube for course {$cnid}");
+      drupal_write_record('oer_analytics_youtube', $inp_arr);
+    }
+  }
+
 } // end cron block
 
 
