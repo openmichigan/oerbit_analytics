@@ -220,7 +220,7 @@ function oer_analytics_cronapi() { // $op and $job = NULL params -- ?? necessary
 // Would-be implementing hook_cron(); populates and updates database tables for analytics module.
 function _oer_analytics_prepcron() { 
 //function oer_analytics_cron() { // for testingonly
-  $vid_db_info = db_query('SELECT field_course_reference_nid, field_video_value FROM {content_field_video} INNER JOIN {content_field_course_reference} WHERE content_field_video.nid = content_field_course_reference.nid AND content_field_video.field_video_provider="youtube" GROUP BY content_field_video.field_video_value'); 
+  $vid_db_info = db_query('SELECT field_course_reference_nid, field_video_value FROM {content_field_video} INNER JOIN {content_field_course_reference} WHERE content_field_video.vid = content_field_course_reference.vid AND content_field_video.field_video_provider="youtube" GROUP BY content_field_video.field_video_value'); 
 
   $all_vids_arr = array();
   $curr_vids_arr = array();
