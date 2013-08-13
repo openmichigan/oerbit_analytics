@@ -318,7 +318,7 @@ function _oer_analytics_prepcron() {
   // Saving course views and downloads information in oer_analytics_courses table
   // Still using other module fxns to control for caching/rate limit issues, but will have this info accessible from db
   foreach($allcourses as $course_nid) {
-    $path = "http://open.umich.edu/node/${course_nid}"
+    $path = "http://open.umich.edu/node/${course_nid}";
     $res_one = google_analytics_counter_get_sum_per_path($path); 
     $res_dls = google_analytics_counter_get_sum_per_path($path . "/zip_download");
     $courseviews = (int) $res_one[0];
