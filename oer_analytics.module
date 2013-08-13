@@ -329,7 +329,7 @@ function _oer_analytics_prepcron() {
       $inparr = array('nid' => $course_nid, 'totalviews' => $courseviews);
     }
  
-    if (array_search($course_nid,$tracked_courses) !== FALSE) {
+    if (array_search($course_nid,$tracked) !== FALSE) {
       drupal_write_record('oer_analytics_courses', $inparr, 'nid'); // oer_analytics_courses already has a record for course {$course_nid}
     } else {
       drupal_write_record('oer_analytics_courses', $inparr); // create a new entry in oer_analytics_courses for this course
