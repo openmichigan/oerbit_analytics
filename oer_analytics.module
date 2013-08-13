@@ -323,7 +323,7 @@ function _oer_analytics_prepcron() {
     $res_dls = google_analytics_counter_get_sum_per_path($path . "/zip_download");
     $courseviews = (int) $res_one[0];
     $dlsviews = (int) $res_dls[0];
-    if {$dlsviews >= 10) {
+    if ($dlsviews >= 10) {
       $inparr = array('nid' => $course_nid, 'totalviews' => $courseviews, 'total_zipdownloads' => $dlsviews);
     } else {
       $inparr = array('nid' => $course_nid, 'totalviews' => $courseviews);
