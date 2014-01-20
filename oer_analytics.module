@@ -454,7 +454,7 @@ function _oer_analytics_block($nid) {
       </span>
       <span id="googleanalytics-dls">
         <p class="statsnums" id="dls-num">{$ga_stats[1]}</p>
-        <p class="oer-analytics-small-descr">downloads</p>
+        <p class="oer-analytics-small-descr">zip downloads</p>
       </span>
     </span>
   </div>
@@ -529,7 +529,7 @@ EOD
       </span>
       <span id="googleanalytics-dls">
         <p class="statsnums" id="dls-num">{$ga_stats[1]}</p>
-        <p class="oer-analytics-small-descr">downloads</p>
+        <p class="oer-analytics-small-descr">zip downloads</p>
       </span>
     </span>
   </div>
