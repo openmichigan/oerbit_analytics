@@ -13,6 +13,8 @@ if (Drupal.jsEnabled) {
 
 Drupal.behaviors.oer_analyticsBehavior = function () {
 	//$("#oer-analytics-button").hide();
+	$("#oer-analytics-buttona").text("metrics");
+	
 	$("#oer-analytics-buttona").click(function () { 
 		$("#oer-analytics-button").fadeIn();
 		//$("oer-analytics-button").css('display', 'block');
@@ -25,6 +27,8 @@ Drupal.behaviors.oer_analyticsBehavior = function () {
 		$("#oer-analytics-buttona").fadeIn();
 		
 	});	
+
+
 
 };
 
