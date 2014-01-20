@@ -13,8 +13,8 @@ div.oer-analytics-button {
     -moz-opacity: 0.5;*/
     background-color: rgb(249,250,252);
     background-color: rgba(249,250,252,0.6);
-    /*display: block;*/
-    display: none;
+    display: block;
+    /*display: none;*/
     font-family: helvetica, arial, sans-serif;
     /*font-size: 300px;*/
     font-weight: lighter;
@@ -51,6 +51,7 @@ div.oer-analytics-button {
     background-size: 40px 40px, 60px 60px;
     background-position: center, 0 0;
     border: 2px solid #EEE;
+    display: none;
     -moz-border-radius: 5px 0 0 5px;
     border-radius: 5px 0 0 5px;
     position: absolute;
@@ -73,11 +74,12 @@ div.oer-analytics-button {
     cursor: pointer;
 }
 
+/*
 #oer-analytics-buttona:active {
     background-image: url(http://open.umich.edu/sites/default/files/images/noun_project_4503.png);
     background-color: #7F1622;
     background-size: 40px 40px;
-}
+}*/
 
 /*
 div.oer-analytics-button:active {

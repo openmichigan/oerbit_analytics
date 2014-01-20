@@ -303,6 +303,39 @@ function _oer_analytics_prepcron() {
     }
   }
 
+  $all_courses = db_query("SELECT nid FROM {content_type_course}");
+  $allcourses = array();
+  while ($row = db_fetch_object($all_courses)) {
+    array_push($allcourses, $row->nid); // this array will hold ALL things of type course in OERbit
+  }
+
+  $tracked = array();
+  $tracked_courses = db_query("SELECT nid FROM {oer_analytics_courses}");
+   while ($row = db_fetch_object($tracked_courses)) {
+    array_push($tracked, $row->nid);
+  }
+
+  // Saving course views and downloads information in oer_analytics_courses table
+  // Still using other module fxns to control for caching/rate limit issues, but will have this info accessible from db
+  foreach($allcourses as $course_nid) {
+    $path = "http://open.umich.edu/node/${course_nid}";
+    $res_one = google_analytics_counter_get_sum_per_path($path); 
+    $res_dls = google_analytics_counter_get_sum_per_path($path . "/zip_download");
+    $courseviews = (int) $res_one[0];
+    $dlsviews = (int) $res_dls[0];
+    if ($dlsviews >= 10) {
+      $inparr = array('nid' => $course_nid, 'totalviews' => $courseviews, 'total_zipdownloads' => $dlsviews);
+    } else {
+      $inparr = array('nid' => $course_nid, 'totalviews' => $courseviews);
+    }
+ 
+    if (array_search($course_nid,$tracked) !== FALSE) {
+      drupal_write_record('oer_analytics_courses', $inparr, 'nid'); // oer_analytics_courses already has a record for course {$course_nid}
+    } else {
+      drupal_write_record('oer_analytics_courses', $inparr); // create a new entry in oer_analytics_courses for this course
+    }
+  }
+
 } // end cron block
 
 
@@ -318,51 +351,22 @@ function oer_analytics_block($op = 'list', $delta = 0, $edit = array()) {
       );
       return $blocks;
     case 'view':
-      if (arg(0) == 'node' && is_numeric(arg(1))) { // node_load() -- check node type..
+      if (arg(0) == 'node' && is_numeric(arg(1))) { // node_load() -- check node type
         return _oer_analytics_block(arg(1)); // gets info that will be displayed
       }
   }
 } 
 
 
-// function most_watched_vid($nid) {
-//   // to get most-viewed video
-//     $db_vid_amts = db_query('SELECT videoid, totalviews FROM {oer_analytics_vids} WHERE course_nid = %d', $nid);
-//     $vid_amt_arr = array();
-//     while ($row = db_fetch_object($db_vid_amts)) {
-//       $viewnum = $row->totalviews;
-//       $vid = $row->videoid;
-//       $vid_amt_arr[$vid] = $viewnum;
-//     }
-//     arsort($vid_amt_arr);
-//     $most_vids = array_keys($vid_amt_arr);
-//     $mv = $most_vids[0];
-//     $title = get_video_title($mv);
-//     if (count($title) > 10) {
-//       $title = substr($title, 0, 10); 
-//       $title = $title . "...";
-//     }
-//     $vidurl = "http://www.youtube.com/watch?v=" . $mv;
-//     return "<a id='mostvidlink' href='" . $vidurl . "' target=_blank>${title}</a>";
-// }
-
-
 function _oer_analytics_block($nid) {
   $node = node_load($nid);
-  if ($node->type == 'course') { // given context, unecessary check? Perhaps not.
+  if ($node->type == 'course') { // may not be necessary, TODO
     $stats = array();
     $full_stats = array();
     $vidcount = array();
 
-    //tmp -- many following queries should be consolidated; too much looping TODO
+    //tmp -- many following queries should be consolidated; TODO
     $db_res = db_query('SELECT course_nid, totalviews, totalcomments FROM {oer_analytics_youtube} WHERE course_nid = %d', $nid);
-
-    // for number of vids in course
-    // $db_res_vids = db_query('SELECT videoid FROM {oer_analytics_vids} WHERE course_nid= %d', $nid);
-    // $num_rows = $db_res_vids->num_rows;
-
-    
-
 
 
     while ($row = db_fetch_object($db_res)) {
@@ -393,6 +397,7 @@ function _oer_analytics_block($nid) {
     $courseviews = $resultarr_one[0];
     //drupal_set_message($courseviews);
     $dls_views = $resultarr_dls[0];
+
     //drupal_set_message($dls_views);
     if ($dls_views > 10) {
       $ga_stats = array(number_format($courseviews), number_format($dls_views));
