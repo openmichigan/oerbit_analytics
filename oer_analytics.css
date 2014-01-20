@@ -44,7 +44,10 @@ div.oer-analytics-button {
 
 
 #oer-analytics-buttona {
-    background: url(http://open.umich.edu/sites/default/files/images/noun_project_4503.png), url(http://open.umich.edu/sites/default/files/images/extra-gradient.png);
+    /*background: url(http://open.umich.edu/sites/default/files/images/noun_project_4503.png), url(http://open.umich.edu/sites/default/files/images/extra-gradient.png);
+    */
+    font-size:18px;
+    text-align: center;
     background-color: #7F1622, #7F1622;
     background-repeat: no-repeat, repeat-x;
     background-attachment: scroll;
@@ -56,8 +59,8 @@ div.oer-analytics-button {
     border-radius: 5px 0 0 5px;
     position: absolute;
     z-index: 100000;
-    width: 60px;
-    height: 60px;
+    width: 64px;
+    height: 64px;
     position: fixed;
     right:0;
     top: 40%;
