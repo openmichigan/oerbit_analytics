@@ -13,7 +13,7 @@ if (Drupal.jsEnabled) {
 
 Drupal.behaviors.oer_analyticsBehavior = function () {
 	//$("#oer-analytics-button").hide();
-	$("#hiddenq").click(function () {
+	$("#hiddenq").click(function () { // show button open on page load
 		$("#oer-analytics-buttona").fadeIn();
 		//$("oer-analytics-button").css('display', 'block');
 		//$("#oer-analytics-buttona").css('display', 'none');
