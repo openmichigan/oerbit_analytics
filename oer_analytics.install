@@ -14,8 +14,6 @@
 function oer_analytics_install() {
 	//drupal_set_message((st('Installing oer_analytics')));
 	drupal_install_schema('oer_analytics');
-
-	// could I call fxn to populate tables reasonably? or wait for cron
 }
 
 /**
