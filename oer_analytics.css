@@ -59,6 +59,8 @@ div.oer-analytics-button {
     border-radius: 5px 0 0 5px;
     position: absolute;
     z-index: 100000;
+    -moz-width:70px;
+    -moz-height:40px;
     width: 64px;
     height: 64px;
     position: fixed;
